@@ -1446,16 +1446,21 @@ function renderChat(){
   box.innerHTML=`<div class="sys">${fmtTime(m.at)} に ${u.name}さんと連番が成立しました<br>連絡先の交換は成立後に。チケットの売買はアプリ外で行わないでください</div>`+c.map(x=>`<div class="bubble ${x.from}">${esc(x.text)}<time>${fmtTime(x.at)}</time></div>`).join('');
   box.scrollTop=box.scrollHeight;
 }
+$('#msg-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing&&!e.shiftKey){e.preventDefault();$('#composer').requestSubmit();}});
 $('#composer').addEventListener('submit',e=>{
   e.preventDefault();const inp=$('#msg-input');const t=inp.value.trim();if(!t||!chatKey)return;
   (S.chats[chatKey]=S.chats[chatKey]||[]).push({from:'me',text:t,at:Date.now()});inp.value='';save();renderChat();scheduleReply(chatKey);
 });
+const REPLY_KEYS=[[/物販|グッズ|並/,/物販|グッズ|並/],[/集合|待ち合わせ|改札|駅|何時|何分/,/集合|待ち合わせ|改札|駅|前に/],[/終演|打ち上げ|感想|帰り|飲/,/終演|打ち上げ|感想|帰|解散|カフェ|メシ|一杯/],[/チケット|整理番号|席|受け渡し|分配/,/チケット|整理番号|席|ブロック|お渡し/],[/セトリ|新曲|曲/,/セトリ|新曲|曲|アルバム/],[/ホテル|遠征|新幹線/,/ホテル|遠征|新幹線|地元/]];
+function pickReply(u,chat){const mineMsgs=chat.filter(x=>x.from==='me'),last=mineMsgs[mineMsgs.length-1]?.text||'';const used=new Set(chat.filter(x=>x.from==='them').map(x=>x.text));
+  for(const [q,a] of REPLY_KEYS){if(q.test(last)){const r=u.replies.find(t=>a.test(t)&&!used.has(t));if(r)return r;}}
+  return u.replies.find(t=>!used.has(t))||u.replies[(mineMsgs.length-1)%u.replies.length];}
 function scheduleReply(k){
   const m=S.matches.find(x=>x.key===k);const u=U(m.uid);const mine=(S.chats[k]||[]).filter(x=>x.from==='me').length;
   clearTimeout(typingTimer);
   typingTimer=setTimeout(()=>{
     if(chatKey===k){const t=document.createElement('div');t.className='typing';t.id='typing';t.innerHTML='<i></i><i></i><i></i>';$('#msgs').appendChild(t);$('#msgs').scrollTop=$('#msgs').scrollHeight;}
-    setTimeout(()=>{$('#typing')?.remove();pushThem(k,u.replies[(mine-1)%u.replies.length]);},1200+Math.random()*1500);
+    setTimeout(()=>{$('#typing')?.remove();pushThem(k,pickReply(u,S.chats[k]||[]));},1200+Math.random()*1500);
   },700+Math.random()*800);
 }
 function pushThem(k,text){
