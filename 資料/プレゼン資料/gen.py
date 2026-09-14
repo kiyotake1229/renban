@@ -109,7 +109,7 @@ pains = [
  ('alert', '怖い', '相手の素性が分からないまま会う。転売、ドタキャン、当日の連絡が取れない。特に女性は「同性で本人確認済みの人」と最初から絞りたい。'),
  ('clock', '毎回、手間', '枚数・席・受け渡し方法・集合場所を DM で一から確認する。成立しても当日の段取りは頭の中だけ。'),
 ]
-items = [paper(head_row(ICON[i], t, 30, '#17151F').replace('font-weight:700', 'font-weight:800').replace('<span style="font-size:30px', '<span class="fd" style="font-size:30px') + p(d, 17, '#3B3746', 1.85), 'min-height:300px') for i, t, d in pains]
+items = [paper(head_row(ICON[i], t, 30, '#17151F').replace('font-weight:700', 'font-weight:800').replace('<span style="font-size:30px', '<span class="fd" style="font-size:30px') + p(d, 17, '#3B3746', 1.85), 'min-height:250px') for i, t, d in pains]
 body = grid(3, items, 22) + '<div style="font-size:18px;color:#B9B3CC;line-height:1.7">連番したい人は多いのに、探す場所が「X の募集ツイート」しかない。そこに構造を持ち込む。</div>'
 files['S02.dc.html'] = slide(2, body, '01 · 課題', '連番探しは、まだ X の海の中にある')
 
@@ -206,7 +206,7 @@ files['S07.dc.html'] = slide(7, body, '06 · X 連携', 'X に出して、アプ
 done = ['公演検索（ジャンル・内容・時期・エリア・会場・募集状況）と保存した検索', '18項目の条件・一致率順・公演ごとの条件', '申請 → 承諾 → 成立 → トーク（既読・入力中・スタンプ）→ 当日メモ', '終演後の「ありがとう」→ 手帳に記録', 'カウントダウン・推しの予定・お知らせ', 'X 投稿・X 募集文の取り込み・連携表示', '通報・ブロック、同性のみ表示、性別と経験による初期設定', '初回の使い方案内、ペンライトの色（差し色）、ダーク／ライト']
 left = '<div style="display:flex;flex-direction:column;gap:9px">' + ''.join(check_line(d) for d in done) + '</div>'
 right = paper('<div class="fm" style="font-size:13px;letter-spacing:.12em;color:#5E5969">いま触れる</div>'
-              '<div class="fd" style="font-size:26px;font-weight:800;line-height:1.3;word-break:break-all">kiyotake1229.github.io/renban/</div>'
+              '<div class="fd" style="font-size:22px;font-weight:800;line-height:1.3">kiyotake1229.github.io/renban/</div>'
               '<div style="font-size:15px;line-height:1.8;color:#3B3746">iPhone の Safari で開き、共有メニューから「ホーム画面に追加」。アイコンから全画面で起動し、オフラインでも動く。</div>'
               '<div class="fm" style="display:flex;flex-wrap:wrap;gap:8px;border-top:1px dashed #D6CEBA;padding-top:14px;font-size:13px;color:#5E5969"><span>単一 HTML</span><span>·</span><span>通信なし</span><span>·</span><span>端末内保存</span><span>·</span><span>架空データ 16人 / 21公演</span></div>', 'min-height:300px;justify-content:center')
 body = '<div style="display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:40px;flex:1;align-content:start">%s%s</div>' % (left, right)
