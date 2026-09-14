@@ -297,7 +297,12 @@ nav.tabs button.on svg{transform:translateY(-2px) scale(1.08)}
 .req .who{display:flex;align-items:center;gap:12px;cursor:pointer}
 .req .who .t{flex:1;min-width:0}
 .req .who b{display:block;font-size:16px}
-.req .who span{font-size:13px;color:var(--ink2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.req .who b small{font-size:12.5px;color:var(--ink2);font-weight:400}
+.req .who span{font-size:13px;color:var(--ink2);display:block}
+.req .who span.ev{font-family:var(--fm);font-size:12px;margin-top:2px;line-height:1.5}
+.req{position:relative}
+.req>time{position:absolute;top:14px;right:14px;font-family:var(--fm);font-size:11px;color:var(--ink3)}
+.req .who .t{padding-right:44px}
 .req .trust{flex-wrap:wrap}
 .req .trust span{white-space:nowrap}
 .req .msg{font-size:14px;background:var(--sf2);padding:10px 12px;border-radius:8px;color:var(--ink)}
@@ -929,7 +934,7 @@ function openXPost(ev){
   const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
   $('#sh-x-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px;display:flex;align-items:center;gap:8px">${ICON.x}Xに募集を投稿</h2>
     <p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">Xで探している人にも届けて、このアプリに呼び込みます。投稿はXの画面で確認してから送信されます。</p>
-    <div class="xpreview">${esc(text).replace(/(#[^\s]+)/g,'<span class="tag">$1</span>')}</div>
+    <div class="xpreview">${esc(text).replace(/(^|\s)(#[^\s]+)/g,'$1<span class="tag">$2</span>')}</div>
     <div class="cta-row" style="margin-top:14px"><button class="btn line" id="x-copy">${ICON.copy}コピー</button><a class="btn" id="x-open" href="${url}" target="_blank" rel="noopener">${ICON.x}Xで投稿する</a></div>
     <div class="note">投稿を見た人がリンクから来ると、あなたの募集ページに直接たどり着きます。</div>`;
   $('#x-open').querySelector('.ico').style.cssText='fill:var(--amber-ink);stroke:none;width:16px;height:16px';
@@ -1290,6 +1295,7 @@ function openApply(uid,ev){
     // 相手の返事（デモ：数秒後）
     setTimeout(()=>respond(uid,ev),3500+Math.random()*3000);
   };
+  openSheet('sh-apply');
 }
 function respond(uid,ev){
   const k=key(ev,uid),s=S.sent[k];if(!s||s.status!=='pending')return;
@@ -1301,14 +1307,14 @@ function renderReq(){
   const inc=S.incoming.filter(x=>x.status==='open').sort((a,b)=>b.at-a.at);
   const sent=Object.entries(S.sent).sort((a,b)=>b[1].at-a[1].at);
   let html=`<div class="label">届いた申請 <b>${inc.length}</b></div><div class="stack">`;
-  html+=inc.length?inc.map(r=>{const u=U(r.uid),e=E(r.ev);return `<div class="req" data-uid="${u.id}" data-ev="${e.id}"><div class="who">${avatar(u)}<div class="t"><b>${u.name} <small style="color:var(--ink2);font-weight:400">@${u.handle} · ${u.age} · ${genderLabel(u.gender)}</small></b><span>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</span></div><time style="font-size:11px;color:var(--ink3)">${fmtTime(r.at)}</time></div>
+  html+=inc.length?inc.map(r=>{const u=U(r.uid),e=E(r.ev);return `<div class="req" data-uid="${u.id}" data-ev="${e.id}"><time>${fmtTime(r.at)}</time><div class="who">${avatar(u)}<div class="t"><b>${u.name} <small>@${u.handle}</small></b><span class="meta">${u.age} · ${genderLabel(u.gender)}</span><span class="ev">${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</span></div></div>
       <div class="trust" style="display:flex;gap:10px;font-size:12px;color:var(--ink2)"><span>参戦 <b>${u.count}</b>回</span><span>連番 <b>${u.renban}</b>回</span><span>ありがとう <b>${u.thanks}</b></span>${u.verified?`<span style="color:var(--info)">本人確認済</span>`:''}</div>
       <div class="msg">${esc(r.msg)}</div>
       <div class="acts"><button class="btn line" data-a="decline">見送る</button><button class="btn" data-a="accept">承諾して連番にする</button></div></div>`;}).join(''):`<div class="empty">新しい申請はありません</div>`;
   html+=`</div><div class="label" style="margin-top:22px">送った申請 <b>${sent.length}</b></div><div class="stack">`;
   html+=sent.length?sent.map(([k,s])=>{const [ev,uid]=k.split('_');const u=U(+uid),e=E(ev);
     const st=s.status==='accepted'?`<span class="chip ok">${ICON.check}承諾 · 連番確定</span>`:s.status==='declined'?`<span class="chip warn">見送り</span>`:`<span class="chip info">返事待ち</span>`;
-    return `<div class="req ${s.status==='pending'?'pending':''}" data-uid="${u.id}" data-ev="${e.id}"><div class="who">${avatar(u)}<div class="t"><b>${u.name}</b><span>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</span></div>${st}</div>
+    return `<div class="req ${s.status==='pending'?'pending':''}" data-uid="${u.id}" data-ev="${e.id}"><div class="who">${avatar(u)}<div class="t"><b>${u.name} <small>@${u.handle}</small></b><span class="ev">${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</span></div></div><div>${st}</div>
       ${s.status==='accepted'?`<div class="acts"><button class="btn ghost" data-a="chat">トークを開く</button></div>`:s.status==='pending'?`<div class="acts"><button class="btn line" data-a="cancel">取り消す</button></div>`:''}</div>`;}).join(''):`<div class="empty">まだ申請を送っていません</div>`;
   html+='</div>';
   $('#req').innerHTML=html;
