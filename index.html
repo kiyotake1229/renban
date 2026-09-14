@@ -889,7 +889,7 @@ function renderHome(){
 }
 
 /* ================= X連携（無料でできる範囲） ================= */
-const APP_URL='https://claude.ai/code/artifact/06138a14-6479-4fa2-9568-800ad69f0721';
+const APP_URL='https://kiyotake1229.github.io/renban/';
 function xPostText(ev){
   const e=E(ev),a=A(e.a),st=S.attending[ev],mt=S.myTicket[ev]||{},c=condFor(ev);
   const SHORT={gender:{same:'同性'},verified:{yes:'本人確認済'},minor:{no:'18歳以上'},fc:{yes:'FC会員'},minCount:{3:'参戦3回〜',10:'参戦10回〜',20:'参戦20回〜'},oshi:{same:'推し一致'},goods:{yes:'物販一緒に',no:'物販なし'},voice:{loud:'声出しOK',quiet:'静かに聴く派'},after:{yes:'打ち上げ歓迎',no:'終演後は解散'},travel:{yes:'遠征組'},beginner:{exclude:'経験者',only:'初心者歓迎'},ticket:{give:'1枚譲ってくれる方',none:'チケットない方も'},method:{digital:'電子分配',hand:'手渡し'}};

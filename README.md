@@ -6,7 +6,9 @@
 サーバーなし。架空のアーティスト9組（フェス2本含む）・公演21本・ユーザー16人を埋め込み、申請〜成立〜当日調整〜終演後の「ありがとう」〜手帳の記録まで一連の流れを再現する。
 
 ## 公開URL
-- Claude Artifact（v7）: https://claude.ai/code/artifact/06138a14-6479-4fa2-9568-800ad69f0721
+- **GitHub Pages（本番・ホーム画面に追加して使う）**: https://kiyotake1229.github.io/renban/
+- GitHub リポジトリ: https://github.com/kiyotake1229/renban
+- Claude Artifact（v7・確認用）: https://claude.ai/code/artifact/06138a14-6479-4fa2-9568-800ad69f0721
 - 旧URL（v6まで。別アカウントで公開したため更新できず、v7から上記に移行）: https://claude.ai/code/artifact/7119d4c7-9163-462a-aed3-a470ee5605af
 
 ## コンセプト（Twitterの連番募集に勝つための差別化）
@@ -59,7 +61,9 @@
 ## 技術メモ
 - `prompt()` / `confirm()` は Artifact のサンドボックス内で動かないため、すべてアプリ内のシート（`askDialog`）に置き換え済み
 - X投稿の `window.open` が塞がれている環境では、文面をクリップボードにコピーしてトーストで案内する
-- 公演ページ直リンク（`#ev=e1`）は GitHub Pages など通常のURLでは動く。Artifact のURLに付けた場合は iframe に届かない可能性があり未確認
+- X投稿に入るリンクは GitHub Pages のURL。公演ページ直リンク（`#ev=e1`）もそこで動く
+- iPhone で使うときは Safari で GitHub Pages のURLを開き、共有メニュー →「ホーム画面に追加」。フルスクリーンで起動し、オフラインでも動く
+- 更新の流れ：`index.html` を直す → `git add -A && git commit -m "..." && git push` → 1〜2分で GitHub Pages に反映。Artifact は別途公開し直す
 - Esc キーでシート・成立画面を閉じられる。各シート右上に閉じるボタンあり
 
 ## 本番化する場合に必要なもの（未着手）
