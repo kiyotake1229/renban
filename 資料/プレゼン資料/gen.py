@@ -240,7 +240,28 @@ decide = card('<div class="fm" style="font-size:12px;letter-spacing:.12em;color:
 body = grid(4, items) + '<div style="display:flex;gap:20px">%s%s</div>' % (cost, decide)
 files['S10.dc.html'] = slide(10, body, '09 · 次のステップ', '本番化への道と、今日決めたいこと')
 
+# ---------- ライト配色（アプリのライトテーマと同じ色に置き換える） ----------
+LIGHT = True
+LIGHT_MAP = [
+ ('#121019', '#ECEAF2'), ('#1A1826', '#FFFFFF'), ('#242131', '#F1EFF6'), ('#2A2637', '#DCD8E6'), ('#3B3650', '#C9C4D8'),
+ ('#F1EEF7', '#17151F'), ('#B9B3CC', '#5B5668'), ('#7E789A', '#8F8AA2'),
+ ('#FFB547', '#E1931A'), ('rgba(255,181,71,.14)', 'rgba(225,147,26,.14)'), ('#1C1300', '#FFFFFF'),
+ ('#FF5D9E', '#D9377F'), ('rgba(255,93,158,.14)', 'rgba(217,55,127,.12)'),
+ ('#4FD29B', '#1E9E6C'), ('#FF6E6E', '#D24C48'), ('rgba(255,110,110,.14)', 'rgba(210,76,72,.12)'), ('#7FB0FF', '#3572CC'),
+ ('#F5F0E4', '#FBF8F1'), ('#EBE4D2', '#F1ECDF'), ('#D6CEBA', '#DCD5C4'),
+ ('rgba(0,0,0,.4)', 'rgba(23,21,31,.10)'), ('rgba(0,0,0,.55)', 'rgba(23,21,31,.16)'),
+]
+def to_light(src):
+    for a, b in LIGHT_MAP:
+        src = src.replace(a, b)
+    # カードは白なので、うっすら枠と影で地から浮かせる
+    src = src.replace('background:#FFFFFF;border:1px solid #DCD8E6;border-radius:12px;padding:22px 24px', 'background:#FFFFFF;border:1px solid #DCD8E6;border-radius:12px;padding:22px 24px;box-shadow:0 6px 18px rgba(23,21,31,.06)')
+    src = src.replace('background:#FBF8F1;color:#17151F;border-radius:12px;padding:24px 26px', 'background:#FBF8F1;color:#17151F;border:1px solid #E6E0D0;border-radius:12px;padding:24px 26px')
+    return src
+
 for name, src in files.items():
+    if LIGHT:
+        src = to_light(src)
     open(os.path.join(OUT, name), 'w', encoding='utf-8').write(src)
 
 names = ['Main.dc.html'] + ['S%02d.dc.html' % i for i in range(2, 11)]
