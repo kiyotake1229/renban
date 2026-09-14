@@ -69,6 +69,7 @@
 - `index.html` … アプリ本体（単一HTML）
 - `manifest.json` / `sw.js` / `icon.svg` / `icon-192.png` / `icon-512.png` / `apple-touch-icon.png` … PWA用。GitHub Pages などで配信したときだけサービスワーカーを登録する（Artifact 内では登録しない）
 - `v1_汎用スワイプ版/index.html` … 最初に作った汎用スワイプ型デモ（比較用に保管）
+- `資料/プレゼン資料/` … 社内提案のスライド10枚（生成スクリプトと元データ）。公開URL: https://claude.ai/code/artifact/f0eb0fe3-c0b8-483a-831e-9da7bd87bbcc
 
 ## デザイン（v8）
 - 「半券」を軸にした画面。会場の暗がり（地）に、紙のチケット（公演カード・手帳・初回案内）とペンライトの色だけが浮かぶ
