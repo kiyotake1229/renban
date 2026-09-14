@@ -451,6 +451,42 @@ nav.tabs button.on svg{transform:translateY(-2px) scale(1.08)}
 .intro-card .btn{min-width:230px;margin-top:4px}
 .intro-card .skip{font-size:13px;color:var(--paper-ink2);padding:6px 12px}
 
+/* ---------- ペンライトの色（差し色）。性別ではなく本人が選ぶ ---------- */
+:root[data-light="pink"]{--amber:#FF5D9E;--amber-ink:#2A0A18;--amber-soft:rgba(255,93,158,.14)}
+:root[data-light="blue"]{--amber:#7FB0FF;--amber-ink:#061530;--amber-soft:rgba(127,176,255,.14)}
+:root[data-light="green"]{--amber:#4FD29B;--amber-ink:#04261A;--amber-soft:rgba(79,210,155,.14)}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"])[data-light="pink"]{--amber:#D9377F;--amber-ink:#fff;--amber-soft:rgba(217,55,127,.12)}
+  :root:not([data-theme="dark"])[data-light="blue"]{--amber:#3572CC;--amber-ink:#fff;--amber-soft:rgba(53,114,204,.12)}
+  :root:not([data-theme="dark"])[data-light="green"]{--amber:#1E9E6C;--amber-ink:#fff;--amber-soft:rgba(30,158,108,.13)}
+}
+:root[data-theme="light"][data-light="pink"]{--amber:#D9377F;--amber-ink:#fff;--amber-soft:rgba(217,55,127,.12)}
+:root[data-theme="light"][data-light="blue"]{--amber:#3572CC;--amber-ink:#fff;--amber-soft:rgba(53,114,204,.12)}
+:root[data-theme="light"][data-light="green"]{--amber:#1E9E6C;--amber-ink:#fff;--amber-soft:rgba(30,158,108,.13)}
+.lightpick{display:flex;gap:10px}
+.lightpick button{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:10px;background:var(--sf);border:1px solid var(--line2);font-size:12.5px;color:var(--ink2);transition:all .15s}
+.lightpick button i{width:6px;height:26px;border-radius:3px;background:var(--c);box-shadow:0 0 10px var(--c)}
+.lightpick button.on{border-color:var(--c);color:var(--ink);background:var(--sf2)}
+
+/* ---------- ホーム：条件に合う人・X投稿の導線 ---------- */
+.prow{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.prow .t{flex:1;min-width:0}
+.prow b{display:block;font-size:15px}
+.prow span{display:block;font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pscore{display:flex;flex-direction:column;align-items:flex-end;line-height:1;flex:none}
+.pscore b{font-family:var(--fd);font-size:18px;font-weight:800;font-variant-numeric:tabular-nums}
+.pscore span{font-size:10px;color:var(--ink3);margin-top:2px}
+.pscore.full b{color:var(--ok)}.pscore.mid b{color:var(--amber)}.pscore.low b{color:var(--ink3)}
+.postcta{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-top:14px;border-radius:10px;background:var(--sf);border:1px solid var(--line)}
+.postcta .ico{width:22px;height:22px;fill:var(--ink);stroke:none;flex:none}
+.postcta .t{flex:1;min-width:0}
+.postcta b{display:block;font-size:14.5px}
+.postcta span{font-size:12.5px;color:var(--ink2)}
+.introform{width:100%;text-align:left;display:flex;flex-direction:column;gap:10px}
+.introform label{font-size:13px;font-weight:700;color:var(--paper-ink2)}
+.introform .opts button{background:var(--paper2);border-color:var(--paper-line);color:var(--paper-ink2)}
+.introform .opts button.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
+
 .toast{position:absolute;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;font-size:13.5px;opacity:0;transition:all .3s;pointer-events:none;z-index:30;max-width:calc(100% - 40px);text-align:center;line-height:1.5}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
@@ -772,6 +808,16 @@ const CONDS=[
 ];
 const COND_GROUPS=['相手について','チケット','当日の過ごし方'];
 const DEFAULT_COND={gender:'any',ageMin:'any',ageMax:'any',minor:'no',verified:'yes',fc:'any',minCount:'3',minRenban:'any',beginner:'any',oshi:'same',ticket:'any',method:'any',goods:'yes',voice:'loud',after:'any',travel:'any',hotel:'any',car:'any'};
+/* 性別・経験による初期設定。見た目は変えず、安心の初期値と導線の順番だけ変える。あとから全部変えられる */
+const PRESETS={
+  F:{cond:{gender:'same',verified:'yes',minor:'no'},sort:'date',focus:'people',label:'安心を優先した初期値（同性のみ・本人確認済のみ・未成年除外）'},
+  M:{cond:{gender:'any',verified:'any',minCount:'any',oshi:'same',goods:'yes'},sort:'seek',focus:'post',label:'相手が見つかりやすい初期値（推し一致と物販を優先・募集人数順）'},
+  N:{cond:{},sort:'date',focus:'people',label:'標準の初期値'}
+};
+function applyPreset(g,beginner){const p=PRESETS[g]||PRESETS.N;
+  S.cond.default=Object.assign({},p.cond,beginner?{minRenban:'1',beginner:'any'}:{});
+  S.search.sort=p.sort;S.homeFocus=p.focus;save();return p.label;}
+function applyLight(){document.documentElement.dataset.light=S.me.light||'amber';}
 function condFor(ev){return Object.assign({},DEFAULT_COND,S.cond.default,ev&&S.cond.byEvent[ev]||{});}
 function activeConds(c){return CONDS.filter(d=>c[d.k]&&c[d.k]!=='any');}
 function scoreUser(u,ev,c){const act=activeConds(c);const ok=[],ng=[];act.forEach(d=>{(d.test(u,c[d.k],ev)?ok:ng).push(d.ng(u,c[d.k],ev));});return {ok,ng,total:act.length,rate:act.length?ok.length/act.length:1};}
@@ -780,7 +826,7 @@ function condSummary(c){const a=activeConds(c);return a.map(d=>{const o=d.opts.f
 /* ================= 状態 ================= */
 const KEY='renban_demo_v3';
 const defaultState=()=>({
-  me:{handle:'yuu_live',name:'ゆう',age:'20代後半',gender:'F',area:'関東',oshi:['gh','sa'],tags:['声出し全力','物販並ぶ','打ち上げOK'],bio:'GLASS HORIZON と天野ソラさんが好きです。一緒に楽しめる方と連番したいです。',hue:20,renban:4,thanks:7,x:'yuu_live'},
+  me:{handle:'yuu_live',name:'ゆう',age:'20代後半',gender:'F',area:'関東',oshi:['gh','sa'],tags:['声出し全力','物販並ぶ','打ち上げOK'],bio:'GLASS HORIZON と天野ソラさんが好きです。一緒に楽しめる方と連番したいです。',hue:20,renban:4,thanks:7,x:'yuu_live',light:'amber'},
   attending:{e1:'one',e3:'two',e5:'one'},
   sent:{},        // key -> {status:'pending'|'accepted'|'declined', at, msg}
   incoming:[      // 起動時に届いている申請
@@ -792,7 +838,8 @@ const defaultState=()=>({
   read:{},
   notes:{},       // key -> {place,time,ticket,done:[]}
   myTicket:{e1:{seat:'アリーナ',method:'digital'},e3:{seat:'整理番号A 200番台',method:'digital'},e5:{seat:'1階S席',method:'hand'}},
-  cond:{default:{},byEvent:{}},
+  cond:{default:{gender:'same'},byEvent:{}},   // 初期値は女性向けプリセット（初回案内で選び直せる）
+  homeFocus:'people', // people: 条件に合う人を先に / post: X投稿の導線を先に
   onlyMatch:false,
   search:{text:'',genre:[],kind:[],period:'all',region:[],vt:[],seek:false,give:false,sort:'date'},
   savedSearches:[],
@@ -877,6 +924,8 @@ function ticketHTML(ev,cls,foot){
     <div class="print"><span>OPEN ${ev.open}</span><span>START ${ev.start}</span><span>${ev.type}</span></div>
     <div class="foot">${foot}</div></div></div>`;
 }
+function topPeople(){const out=[];Object.keys(S.attending).forEach(ev=>{if(S.done[ev]||!E(ev))return;const c=condFor(ev);peopleFor(ev).forEach(u=>{if(isMatched(ev,u.id))return;out.push({u,ev,sc:scoreUser(u,ev,c)});});});
+  return out.sort((a,b)=>(b.sc.rate-a.sc.rate)||(b.u.renban-a.u.renban)).slice(0,3);}
 function fitCount(ev){const c=condFor(ev);return peopleFor(ev).filter(u=>scoreUser(u,ev,c).ng.length===0).length;}
 const KIND_CLS={'締切':'hot','当落':'hot','一般発売':'soon','リリース':'','配信':'','TV':''};
 function daysUntil(d){return Math.round((new Date(d+'T00:00:00')-TODAY)/864e5);}
@@ -894,6 +943,14 @@ function renderHome(){
   if(mine.length){const n=mine[0],a=A(n.a),d=daysUntil(n.date),st=matchStatus(n.id);
     html+=`<div class="hero" data-ev="${n.id}"><div class="eyebrow">次の現場まで</div><div class="cd"><b>${d===0?'今日':d}</b><span>${d===0?'':'日'}</span></div><div class="what">${a.name} · ${n.venue}</div><div class="sub">${fmtDate(n.date)} 開演 ${n.start} · ${st.label}</div>
       <div class="sticks">${[0,1,2,3,4,5,6,7].map(i=>`<i style="color:hsl(${[a.hue,45,330,200][i%4]} 90% 65%);animation-delay:${i*.2}s"></i>`).join('')}</div></div>`;}
+  // 条件に合う人（参戦予定の公演から横断で上位3人）
+  const tp=topPeople();
+  const peopleHTML=tp.length?`<div class="label" style="margin-top:18px">条件に合う人 <b>${tp.length}</b><span style="margin-left:auto;font-weight:400;font-size:12px;color:var(--ink3)">参戦予定の公演から</span></div>`+tp.map(x=>{const e=E(x.ev),cls=x.sc.ng.length===0?'full':x.sc.rate>=.6?'mid':'low';
+    return `<div class="prow" data-ev="${x.ev}" data-uid="${x.u.id}">${avatar(x.u,'sm')}<div class="t"><b>${x.u.name}</b><span>${fmtDate(e.date)} ${A(e.a).name} · ${x.u.tags.slice(0,2).join(' · ')}</span></div><div class="pscore ${cls}"><b>${x.sc.ok.length}/${x.sc.total}</b><span>条件一致</span></div></div>`;}).join(''):'';
+  // X投稿の導線（自分から動く人向け）
+  const nx=mine.find(e=>matchStatus(e.id).t==='seek');
+  const postHTML=nx?`<div class="postcta">${ICON.x}<div class="t"><b>${E(nx.id).venue} の募集を X に出す</b><span>枚数・席・条件を定型文にして投稿画面を開きます</span></div><button class="btn sm" id="b-home-xpost" data-ev="${nx.id}">投稿</button></div>`:'';
+  if(S.homeFocus==='post')html+=postHTML;else html+=peopleHTML;
   // 推しの予定
   const sch=SCHEDULE.filter(x=>S.me.oshi.includes(x.a)&&daysUntil(x.date)>=0).sort((x,y)=>x.date<y.date?-1:1);
   const show=S.schedAll?sch:sch.slice(0,4);
@@ -909,6 +966,7 @@ function renderHome(){
     const chip=st.t==='done'?`<span class="chip ok">${ICON.check}${st.label}</span>`:st.t==='inc'?`<span class="chip pink">${ICON.users}${st.label}</span>`:st.t==='sent'?`<span class="chip info">${st.label}</span>`:`<span class="chip amber">${ICON.search}${st.label} · 条件に合う ${fitCount(e.id)}人</span>`;
     return ticketHTML(e,st.t==='done'?'done':'mine',chip+`<span class="chip">${ICON.ticket}${TICKET[S.attending[e.id]].split('（')[0]}</span>`);
   }).join('')+'</div>';
+  if(S.homeFocus==='post')html+=peopleHTML;
   // 保存した検索
   html+=`<div class="label" style="margin-top:22px">保存した検索 <b>${S.savedSearches.length}</b></div>`;
   html+=S.savedSearches.length?S.savedSearches.map((sv,i)=>{const n=searchEvents(sv.q).length;return `<div class="savedrow" data-i="${i}">${ICON.bookmark}<div class="t"><b>${esc(sv.name)}</b><span>${searchSummary(sv.q).join(' · ')||'すべての公演'}</span></div><span class="n">${n}</span><button class="x" data-del="${i}" title="削除">${ICON.close}</button></div>`;}).join(''):`<div class="note" style="padding:4px 4px 10px">「さがす」で条件を保存すると、ここに新着件数つきで並びます。</div>`;
@@ -917,6 +975,8 @@ function renderHome(){
   h.querySelectorAll('.ticket,.hero').forEach(t=>t.onclick=()=>openEvent(t.dataset.ev));
   h.querySelectorAll('.savedrow').forEach(r=>r.onclick=e=>{if(e.target.closest('[data-del]')){S.savedSearches.splice(+e.target.closest('[data-del]').dataset.del,1);save();renderHome();return;}S.search=Object.assign({},S.savedSearches[+r.dataset.i].q);save();showTab('search');});
   $('#b-go-search').onclick=()=>showTab('search');
+  h.querySelectorAll('.prow').forEach(r=>r.onclick=()=>{openEvent(r.dataset.ev);openPerson(+r.dataset.uid,r.dataset.ev);});
+  const bx=$('#b-home-xpost');if(bx)bx.onclick=()=>openXPost(bx.dataset.ev);
   const bm=$('#b-sched-more');if(bm)bm.onclick=()=>{S.schedAll=!S.schedAll;renderHome();};
 }
 
@@ -1267,12 +1327,18 @@ function openFinish(ev){const m=S.matches.find(x=>x.ev===ev);if(!m)return;const 
 const INTRO=[
  {icon:'ticket',title:'公演を選ぶところから',text:'スワイプで人を選ぶアプリではありません。まず「さがす」で行く公演を見つけて「行く」にすると、その公演に行く人だけが並びます。'},
  {icon:'sliders',title:'18項目の条件で絞って申請',text:'性別・本人確認・物販・声出しなどの条件で相手を絞り、申請を送ります。条件に合わない人も一致率順に見えるので、取りこぼしません。'},
- {icon:'users',title:'当日メモで段取り、終演後はありがとう',text:'成立したらトークと当日メモで集合場所を決めます。終演後は「ありがとう」を送り合い、手帳に参戦の記録が残ります。'}
+ {icon:'users',title:'当日メモで段取り、終演後はありがとう',text:'成立したらトークと当日メモで集合場所を決めます。終演後は「ありがとう」を送り合い、手帳に参戦の記録が残ります。'},
+ {icon:'sliders',title:'あなたに合わせた初期設定にします',text:'性別と連番の経験で、安心の初期値と画面の順番を決めます。あとからマイページで全部変えられます。',form:true}
 ];
 let introI=0;
 function renderIntro(){const s=INTRO[introI],last=introI===INTRO.length-1;
-  $('#intro-card').innerHTML=`<div class="big">${ICON[s.icon]}</div><div class="eyebrow">Step ${introI+1} / ${INTRO.length}</div><h2>${s.title}</h2><p>${s.text}</p><div class="dots">${INTRO.map((_,i)=>`<i class="${i===introI?'on':''}"></i>`).join('')}</div><button class="btn" id="intro-next">${last?'はじめる':'次へ'}</button>${last?'':'<button class="skip" id="intro-skip">スキップ</button>'}`;
-  $('#intro-next').onclick=()=>{if(introI<INTRO.length-1){introI++;renderIntro();}else closeIntro();};const sk=$('#intro-skip');if(sk)sk.onclick=closeIntro;}
+  const form=s.form?`<div class="introform"><label>性別</label><div class="opts" id="in-g">${[['F','女性'],['M','男性'],['N','回答しない']].map(([k,v])=>`<button type="button" data-v="${k}" class="${S.me.gender===k?'on':''}">${v}</button>`).join('')}</div>
+    <label>連番の経験</label><div class="opts" id="in-b">${[['no','経験あり'],['yes','今回が初めて']].map(([k,v])=>`<button type="button" data-v="${k}" class="${(S.me.renban>0?'no':'yes')===k?'on':''}">${v}</button>`).join('')}</div></div>`:'';
+  $('#intro-card').innerHTML=`<div class="big">${ICON[s.icon]}</div><div class="eyebrow">Step ${introI+1} / ${INTRO.length}</div><h2>${s.title}</h2><p>${s.text}</p>${form}<div class="dots">${INTRO.map((_,i)=>`<i class="${i===introI?'on':''}"></i>`).join('')}</div><button class="btn" id="intro-next">${last?'この設定ではじめる':'次へ'}</button>${last?'':'<button class="skip" id="intro-skip">スキップ</button>'}`;
+  $('#intro-card').querySelectorAll('.opts').forEach(o=>o.querySelectorAll('button').forEach(b=>b.onclick=()=>{o.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
+  $('#intro-next').onclick=()=>{if(introI<INTRO.length-1){introI++;renderIntro();return;}
+    if(s.form){const g=$('#in-g .on').dataset.v,bg=$('#in-b .on').dataset.v==='yes';S.me.gender=g;const label=applyPreset(g,bg);closeIntro();renderHome();if(tab==='me')renderMe();toast(label);}else closeIntro();};
+  const sk=$('#intro-skip');if(sk)sk.onclick=()=>{introI=INTRO.length-1;renderIntro();};}
 function openIntro(){introI=0;renderIntro();const l=$('#intro-lights');l.innerHTML='';for(let i=0;i<22;i++){const p=document.createElement('i');p.style.left=(i/22*100+2)+'%';p.style.color=`hsl(${[200,45,330,275][i%4]} 90% 65%)`;p.style.animationDelay=(i*.13)+'s';l.appendChild(p);}$('#intro').classList.add('open');}
 function closeIntro(){$('#intro').classList.remove('open');S.onboarded=true;save();}
 
@@ -1424,6 +1490,8 @@ function renderMe(){
   const m=S.me;const sg=condFor(null).gender==='same';
   $('#me').innerHTML=`<div class="me-card">${avatar(m,'lg')}<div><h2>${esc(m.name)}</h2><p>@${esc(m.handle)} · ${m.age} · ${genderLabel(m.gender)} · ${m.area}</p></div></div>
     <div class="stats"><div class="stat"><b>${pastList().length}</b><span>参戦回数</span></div><div class="stat"><b>${m.renban+S.matches.length}</b><span>連番回数</span></div><div class="stat"><b>${m.thanks}</b><span>ありがとう</span></div></div>
+    <div class="label" style="margin-top:20px">ペンライトの色 <span style="margin-left:auto;font-weight:400;font-size:12px;color:var(--ink3)">アプリの差し色になります</span></div>
+    <div class="lightpick" id="f-light">${[['amber','アンバー','#FFB547'],['pink','ピンク','#FF5D9E'],['blue','ブルー','#7FB0FF'],['green','グリーン','#4FD29B']].map(([k,v,c])=>`<button type="button" data-v="${k}" class="${(m.light||'amber')===k?'on':''}" style="--c:${c}"><i></i>${v}</button>`).join('')}</div>
     <div class="label" style="margin-top:20px">X（Twitter）連携</div>
     <div class="xcard ${m.x?'':'off'}">${ICON.x}<div><b>${m.x?'@'+esc(m.x)+' を連携済':'未連携'}</b><span>${m.x?'募集の投稿とアカウント履歴の表示に使います':'連携すると募集をXにも出せて、アカウント履歴が信頼の材料になります'}</span></div></div>
     <div class="field-row" style="margin-bottom:6px"><div class="field"><label>Xのユーザー名</label><input id="f-x" value="${esc(m.x||'')}" placeholder="@なしで入力"></div><div class="field"><label>&nbsp;</label><button class="btn ghost" id="b-ximport" style="width:100%">${ICON.x}募集文から取り込む</button></div></div>
@@ -1444,13 +1512,14 @@ function renderMe(){
     <div class="label" style="margin-top:22px">このデモについて</div>
     <div class="note">ライブの「連番相手」を探すためのアプリのデモ版です。アーティスト・公演・ユーザーはすべて架空です。データはこの端末の中だけに保存され、外部には送信されません。</div>
     <div class="cta-row"><button class="btn ghost" id="b-intro">使い方をもう一度見る</button><button class="btn danger" id="b-reset">デモをリセットする</button></div>`;
+  $('#f-light').querySelectorAll('button').forEach(b=>b.onclick=()=>{m.light=b.dataset.v;save();applyLight();renderMe();});
   $('#t-sg').onclick=()=>{S.cond.default=Object.assign({},S.cond.default,{gender:sg?'any':'same'});save();renderMe();toast(sg?'同性のみ表示を解除しました':'同性のみ表示にしました');};
   $('#b-intro').onclick=openIntro;
   $('#b-cond-def').onclick=()=>openCond(null);
   $('#b-ximport').onclick=openXImport;
   $('#f-oshi').querySelectorAll('button').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
   $('#f-tags').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(!b.classList.contains('on')&&$('#f-tags').querySelectorAll('.on').length>=4){toast('選べるのは4つまでです');return;}b.classList.toggle('on');});
-  $('#b-save').onclick=()=>{m.name=$('#f-name').value.trim()||m.name;m.handle=$('#f-handle').value.trim()||m.handle;m.age=$('#f-age').value;m.gender=$('#f-gender').value;
+  $('#b-save').onclick=()=>{const prevG=m.gender;m.name=$('#f-name').value.trim()||m.name;m.handle=$('#f-handle').value.trim()||m.handle;m.age=$('#f-age').value;m.gender=$('#f-gender').value;if(m.gender!==prevG){const l=applyPreset(m.gender,false);setTimeout(()=>toast('性別に合わせて初期設定を変えました：'+l),1900);}
     m.x=$('#f-x').value.trim().replace(/^@/,'');m.oshi=[...$('#f-oshi').querySelectorAll('.on')].map(b=>b.dataset.id);m.tags=[...$('#f-tags').querySelectorAll('.on')].map(b=>b.textContent);m.bio=$('#f-bio').value.trim();save();renderMe();toast('保存しました');};
   $('#b-reset').onclick=async()=>{if(await askDialog({title:'デモをリセット',desc:'申請・連番・トーク・手帳の記録をすべて消して、最初の状態に戻します。',ok:'リセットする',danger:true})){S=defaultState();S.onboarded=true;save();showTab('home');toast('リセットしました');}};
 }
@@ -1463,7 +1532,7 @@ try{const t=localStorage.getItem(KEY+'_theme');if(t)document.documentElement.set
 let toastT;function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1800);}
 
 /* ================= 起動 ================= */
-renderHome();updateBadges();
+applyLight();renderHome();updateBadges();
 if(!S.onboarded)openIntro();
 // X投稿のリンク（#ev=e1）から来たときは、その公演ページを直接開く
 try{const mm=(location.hash+location.search).match(/ev=(e\d+)/);if(mm&&E(mm[1]))openEvent(mm[1]);}catch(e){}
