@@ -1,0 +1,1439 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>レンバン</title>
+<meta name="theme-color" content="#14122B">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+/* ダークファースト。会場の暗さにペンライトの色が浮かぶイメージ */
+:root{
+  --bg:#14122B; --sf:#1E1B3D; --sf2:#2A2650; --sf3:#353065;
+  --ink:#F2EEFF; --ink2:#B3ACD6; --ink3:#6F6A94; --line:#302C58;
+  --amber:#FFC55C; --amber-ink:#2A1E00; --amber-soft:rgba(255,197,92,.14);
+  --pink:#FF6FB0; --pink-soft:rgba(255,111,176,.14);
+  --ok:#4ED7A2; --warn:#FF7A7A; --info:#7FB4FF;
+  --shadow:0 16px 40px rgba(0,0,0,.45); --shadow-sm:0 4px 14px rgba(0,0,0,.3);
+  --stub-notch:var(--bg);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F3F1FA; --sf:#FFFFFF; --sf2:#E9E6F5; --sf3:#DCD8EE;
+    --ink:#1B1836; --ink2:#5A5580; --ink3:#9A96B8; --line:#E1DDF0;
+    --amber:#E39A16; --amber-ink:#2A1E00; --amber-soft:rgba(227,154,22,.14);
+    --pink:#D9418A; --pink-soft:rgba(217,65,138,.12);
+    --ok:#1FA974; --warn:#D9534F; --info:#3B7DD8;
+    --shadow:0 16px 40px rgba(27,24,54,.14); --shadow-sm:0 4px 14px rgba(27,24,54,.08);
+    --stub-notch:var(--bg);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F3F1FA; --sf:#FFFFFF; --sf2:#E9E6F5; --sf3:#DCD8EE;
+  --ink:#1B1836; --ink2:#5A5580; --ink3:#9A96B8; --line:#E1DDF0;
+  --amber:#E39A16; --amber-ink:#2A1E00; --amber-soft:rgba(227,154,22,.14);
+  --pink:#D9418A; --pink-soft:rgba(217,65,138,.12);
+  --ok:#1FA974; --warn:#D9534F; --info:#3B7DD8;
+  --shadow:0 16px 40px rgba(27,24,54,.14); --shadow-sm:0 4px 14px rgba(27,24,54,.08);
+  --stub-notch:var(--bg);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+svg{display:block}
+.d{font-family:"Barlow Condensed","Zen Kaku Gothic New",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.ico{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* ---------- shell ---------- */
+#app{height:100dvh;max-width:430px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden}
+@media(min-width:700px){
+  body{background:var(--sf2)}
+  #app{height:min(880px,calc(100dvh - 32px));margin-top:16px;border-radius:36px;box-shadow:var(--shadow);border:1px solid var(--line)}
+}
+.screen{flex:1;display:none;flex-direction:column;min-height:0}
+.screen.active{display:flex}
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 8px;gap:10px}
+.top h1{font-size:19px;font-weight:700}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px}
+.brand .mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--amber),var(--pink));display:grid;place-items:center}
+.brand .mark svg{width:18px;height:18px;stroke:#1B1836;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.scroll{flex:1;overflow-y:auto;min-height:0;padding:0 16px 24px}
+.label{font-family:"Barlow Condensed",sans-serif;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:16px 4px 8px;display:flex;align-items:center;gap:8px}
+.label b{color:var(--amber);font-weight:600}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--ink2);transition:background .2s,transform .2s;flex:none}
+.iconbtn:hover{background:var(--sf2)}
+.iconbtn:active{transform:scale(.92)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 10px;border-radius:999px;background:var(--sf2);color:var(--ink2);white-space:nowrap}
+.chip.ok{background:rgba(78,215,162,.15);color:var(--ok)}
+.chip.amber{background:var(--amber-soft);color:var(--amber)}
+.chip.pink{background:var(--pink-soft);color:var(--pink)}
+.chip.warn{background:rgba(255,122,122,.15);color:var(--warn)}
+.chip.info{background:rgba(127,180,255,.15);color:var(--info)}
+.chip .ico{width:13px;height:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;border-radius:13px;font-weight:700;background:var(--amber);color:var(--amber-ink);transition:transform .15s,filter .2s,background .2s;white-space:nowrap}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--sf2);color:var(--ink)}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink2)}
+.btn.danger{background:transparent;border:1px solid var(--line);color:var(--warn)}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:10px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn .ico{width:16px;height:16px}
+
+/* ---------- tab bar ---------- */
+nav.tabs{display:flex;justify-content:space-around;align-items:center;padding:8px 8px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--sf)}
+nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--ink3);padding:6px 12px;border-radius:14px;position:relative;transition:color .2s}
+nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+nav.tabs button.on{color:var(--amber)}
+nav.tabs button.on svg{transform:translateY(-2px) scale(1.08)}
+.badge{position:absolute;top:2px;right:6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--pink);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;animation:pop .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* ---------- ticket stub ---------- */
+.ticket{position:relative;display:flex;background:var(--sf);border-radius:18px;box-shadow:var(--shadow-sm);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid var(--line)}
+.ticket:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+.ticket .stub{width:82px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px;border-right:2px dashed var(--line);position:relative;color:var(--ink)}
+.ticket .stub::before,.ticket .stub::after{content:"";position:absolute;right:-9px;width:16px;height:16px;border-radius:50%;background:var(--stub-notch);border:1px solid var(--line)}
+.ticket .stub::before{top:-9px}.ticket .stub::after{bottom:-9px}
+.ticket .stub .mo{font-family:"Barlow Condensed",sans-serif;font-size:12px;letter-spacing:.14em;color:var(--ink3);font-weight:600}
+.ticket .stub .dd{font-family:"Barlow Condensed",sans-serif;font-size:36px;font-weight:700;line-height:1}
+.ticket .stub .wd{font-size:11px;color:var(--ink2);margin-top:2px}
+.ticket .body{flex:1;min-width:0;padding:12px 14px 12px 16px;display:flex;flex-direction:column;gap:5px}
+.ticket .artist{font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:700;letter-spacing:.02em;line-height:1.1;display:flex;align-items:center;gap:8px}
+.ticket .artist i{width:8px;height:8px;border-radius:50%;flex:none;box-shadow:0 0 8px currentColor}
+.ticket .tour{font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticket .venue{font-size:12.5px;color:var(--ink2);display:flex;align-items:center;gap:4px}
+.ticket .venue .ico{width:13px;height:13px}
+.ticket .foot{display:flex;flex-wrap:wrap;gap:6px;margin-top:3px}
+.ticket.mine .stub{background:linear-gradient(160deg,var(--amber-soft),transparent)}
+.ticket.done .stub{background:linear-gradient(160deg,rgba(78,215,162,.18),transparent)}
+
+.stack{display:flex;flex-direction:column;gap:10px}
+.empty{padding:36px 20px;text-align:center;color:var(--ink2);font-size:13.5px;line-height:1.7}
+.empty .ico{width:40px;height:40px;margin:0 auto 10px;stroke:var(--ink3);stroke-width:1.5}
+
+/* ---------- event page (overlay) ---------- */
+.page{position:absolute;inset:0;background:var(--bg);display:none;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:5}
+.page.open{display:flex;transform:translateX(0)}
+.ev-hero{padding:8px 20px 16px;background:linear-gradient(180deg,var(--sf) 0%,var(--bg) 100%);border-bottom:1px solid var(--line)}
+.ev-hero .artist{font-family:"Barlow Condensed",sans-serif;font-size:30px;font-weight:700;line-height:1;letter-spacing:.02em;display:flex;align-items:center;gap:10px;text-wrap:balance}
+.ev-hero .artist i{width:10px;height:10px;border-radius:50%;box-shadow:0 0 10px currentColor;flex:none}
+.ev-hero .tour{color:var(--ink2);font-size:13.5px;margin-top:4px}
+.ev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.ev-grid div{background:var(--sf2);border-radius:12px;padding:8px 10px}
+.ev-grid small{display:block;font-size:10.5px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;font-family:"Barlow Condensed",sans-serif;font-weight:600}
+.ev-grid b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:19px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mystatus{display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;border-radius:14px;background:var(--sf);border:1px solid var(--line)}
+.mystatus .txt{flex:1;font-size:13px;color:var(--ink2)}
+.mystatus .txt b{display:block;color:var(--ink);font-size:14px}
+.seg{display:flex;background:var(--sf2);border-radius:10px;padding:3px;gap:2px}
+.seg button{padding:6px 10px;border-radius:8px;font-size:12px;color:var(--ink2);transition:all .15s}
+.seg button.on{background:var(--sf);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+/* ---------- ホーム：カウントダウン・予定・手帳 ---------- */
+.homeseg{margin:0 16px 8px;align-self:stretch}
+.homeseg button{flex:1;padding:8px}
+.hero{position:relative;overflow:hidden;border-radius:20px;padding:18px 18px 16px;color:#fff;background:radial-gradient(120% 100% at 100% 0%,#5B3FB0 0%,#2A1E63 55%,#1A1640 100%);box-shadow:var(--shadow-sm);cursor:pointer;margin-top:4px}
+.hero .eyebrow{font-family:"Barlow Condensed",sans-serif;font-size:12px;letter-spacing:.18em;color:var(--amber);font-weight:600;text-transform:uppercase}
+.hero .cd{display:flex;align-items:baseline;gap:6px;margin:2px 0 4px}
+.hero .cd b{font-family:"Barlow Condensed",sans-serif;font-size:56px;font-weight:700;line-height:1;letter-spacing:-.01em}
+.hero .cd span{font-size:14px;opacity:.85}
+.hero .what{font-size:14px;font-weight:700}
+.hero .sub{font-size:12.5px;opacity:.8;margin-top:2px}
+.hero .glow{position:absolute;right:-30px;bottom:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,197,92,.45),transparent 65%);pointer-events:none}
+.hero .sticks{position:absolute;left:0;right:0;bottom:-6px;display:flex;justify-content:space-around;pointer-events:none}
+.hero .sticks i{width:4px;height:18px;border-radius:2px;background:currentColor;box-shadow:0 0 8px currentColor;animation:wave 2.8s ease-in-out infinite;opacity:.8}
+.sched{display:flex;flex-direction:column;gap:6px}
+.sched .it{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--sf);border:1px solid var(--line);border-radius:14px}
+.sched .d{width:44px;flex:none;text-align:center;font-family:"Barlow Condensed",sans-serif;line-height:1}
+.sched .d b{display:block;font-size:20px;font-weight:700}
+.sched .d span{font-size:10.5px;color:var(--ink3);letter-spacing:.08em}
+.sched .t{flex:1;min-width:0}
+.sched .t b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sched .t span{font-size:11.5px;color:var(--ink2);display:flex;align-items:center;gap:5px}
+.sched .t span i{width:6px;height:6px;border-radius:50%;flex:none}
+.sched .k{font-size:10.5px;padding:3px 8px;border-radius:999px;background:var(--sf2);color:var(--ink2);flex:none;font-weight:600}
+.sched .k.hot{background:var(--pink-soft);color:var(--pink)}
+.sched .k.soon{background:var(--amber-soft);color:var(--amber)}
+.sched .it.urgent{border-color:var(--pink)}
+.diary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 6px}
+.drow{display:flex;gap:12px;padding:12px;background:var(--sf);border:1px solid var(--line);border-radius:16px;cursor:pointer;transition:transform .2s}
+.drow:hover{transform:translateY(-2px)}
+.drow .d{width:44px;flex:none;text-align:center;font-family:"Barlow Condensed",sans-serif;line-height:1;padding-top:2px}
+.drow .d b{display:block;font-size:22px;font-weight:700}
+.drow .d span{font-size:10.5px;color:var(--ink3);letter-spacing:.08em}
+.drow .t{flex:1;min-width:0}
+.drow .t b{display:block;font-size:14.5px;font-family:"Barlow Condensed",sans-serif;font-size:17px;letter-spacing:.02em}
+.drow .t span{display:block;font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .t p{font-size:12.5px;color:var(--ink);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.drow .foot{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.stars{display:inline-flex;gap:2px;color:var(--amber)}
+.stars svg{width:13px;height:13px;fill:currentColor;stroke:none}
+.stars svg.off{fill:var(--line)}
+.starpick{display:flex;gap:6px}
+.starpick button svg{width:28px;height:28px;fill:var(--line);stroke:none;transition:fill .15s,transform .15s}
+.starpick button.on svg{fill:var(--amber)}
+.starpick button:hover svg{transform:scale(1.15)}
+.costgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.costgrid .field{margin-bottom:0}
+.costgrid input{text-align:right;font-family:"Barlow Condensed",sans-serif;font-size:16px}
+.yen{font-family:"Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums}
+
+/* ---------- X連携 ---------- */
+.xlink{display:inline-flex;align-items:center;gap:3px;color:var(--ink2)}
+.xlink .ico{width:12px;height:12px;fill:currentColor;stroke:none}
+.xcard{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:var(--sf);border:1px solid var(--line);margin-bottom:14px}
+.xcard .ico{width:22px;height:22px;fill:var(--ink);stroke:none;flex:none}
+.xcard b{display:block;font-size:13.5px}
+.xcard span{font-size:12px;color:var(--ink2)}
+.xcard.off{opacity:.7;border-style:dashed}
+.xpreview{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:13.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.xpreview .tag{color:var(--info)}
+#b-xpost .ico{fill:var(--amber-ink);stroke:none;width:14px;height:14px}
+.parsed{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.parsed span{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--amber-soft);color:var(--amber)}
+.parsed span.ev{background:var(--pink-soft);color:var(--pink)}
+
+/* ---------- 検索 ---------- */
+.searchbox{display:flex;align-items:center;gap:8px;background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:4px 6px 4px 14px;margin:4px 0 6px}
+.searchbox .ico{color:var(--ink3);width:18px;height:18px}
+.searchbox input{flex:1;border:0;background:transparent;outline:none;padding:9px 0;font-size:14px}
+.searchbox button{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--ink3)}
+.searchbox button .ico{width:14px;height:14px}
+.frow{display:flex;align-items:flex-start;gap:8px;padding:6px 0}
+.frow>label{flex:none;width:52px;font-size:11px;letter-spacing:.06em;color:var(--ink3);font-weight:600;padding-top:8px;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase}
+.frow .opts{flex:1}
+.frow .opts button{padding:6px 10px;font-size:12px}
+.frow .opts button i{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:1px}
+.sres{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 4px 8px}
+.sres .label{margin:0}
+.sortsel{font-size:12px;background:var(--sf);border:1px solid var(--line);border-radius:999px;padding:5px 10px;color:var(--ink2);outline:none}
+.ticket .foot .fit{background:rgba(78,215,162,.15);color:var(--ok)}
+.ticket .kind{font-size:10.5px;letter-spacing:.08em;color:var(--ink3);font-family:"Barlow Condensed",sans-serif;font-weight:600;text-transform:uppercase}
+.savedrow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sf);border:1px solid var(--line);border-radius:14px;cursor:pointer;margin-bottom:8px}
+.savedrow .ico{color:var(--amber);width:18px;height:18px}
+.savedrow .t{flex:1;min-width:0}
+.savedrow b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.savedrow span{font-size:12px;color:var(--ink2)}
+.savedrow .n{font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:700;color:var(--amber)}
+.savedrow .x{color:var(--ink3);width:28px;height:28px;border-radius:50%;display:grid;place-items:center}
+.savedrow .x .ico{width:14px;height:14px;color:inherit}
+
+/* ---------- 条件バー ---------- */
+.condbar{margin:12px 16px 0;padding:12px 14px;background:var(--sf);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;gap:8px}
+.condhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.condtitle{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700}
+.condtitle .ico{width:16px;height:16px;color:var(--amber)}
+.condtitle b{font-family:"Barlow Condensed",sans-serif;font-size:16px;color:var(--amber)}
+.condtitle em{font-style:normal;font-size:11px;color:var(--pink);background:var(--pink-soft);padding:2px 7px;border-radius:999px;font-weight:500}
+.condchips{display:flex;flex-wrap:wrap;gap:5px}
+.condchips span{font-size:11.5px;padding:3px 9px;border-radius:999px;background:var(--amber-soft);color:var(--amber)}
+.condchips span.none{background:var(--sf2);color:var(--ink3)}
+.condtoggle{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2);cursor:pointer}
+.condtoggle input{width:16px;height:16px;accent-color:var(--amber)}
+.condrow{display:flex;flex-direction:column;gap:6px;padding:8px 0;border-bottom:1px solid var(--line)}
+.condrow label{font-size:12.5px;color:var(--ink2);font-weight:500}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opts button{font-size:12.5px;padding:6px 11px;border-radius:999px;background:var(--sf);border:1px solid var(--line);color:var(--ink2);transition:all .15s}
+.opts button.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);font-weight:700}
+.score{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;line-height:1}
+.score b{font-family:"Barlow Condensed",sans-serif;font-size:18px;font-weight:700}
+.score span{font-size:9.5px;color:var(--ink3);letter-spacing:.06em}
+.score.full b{color:var(--ok)}.score.mid b{color:var(--amber)}.score.low b{color:var(--ink3)}
+.person .tags span.hit{background:var(--pink-soft);color:var(--pink)}
+.person .tags span.miss{background:rgba(255,122,122,.14);color:var(--warn);text-decoration:line-through}
+
+/* ---------- person card ---------- */
+.person{display:flex;gap:12px;padding:14px;background:var(--sf);border:1px solid var(--line);border-radius:18px;cursor:pointer;transition:transform .2s,border-color .2s}
+.person:hover{transform:translateY(-2px);border-color:var(--ink3)}
+.person.matched{border-color:var(--ok)}
+.avatar{width:50px;height:50px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;color:#1B1836;position:relative;letter-spacing:.02em}
+.avatar.sm{width:36px;height:36px;font-size:15px}
+.avatar.lg{width:84px;height:84px;font-size:32px}
+.avatar .stick{position:absolute;right:-2px;bottom:-2px;width:16px;height:16px;border-radius:50%;border:2px solid var(--sf);box-shadow:0 0 8px currentColor}
+.person .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.person .h{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.person .h b{font-size:15px}
+.person .h small{font-size:12px;color:var(--ink2)}
+.person .vf{display:inline-flex;align-items:center;color:var(--info)}
+.person .vf .ico{width:14px;height:14px;stroke-width:2.6}
+.person .trust{display:flex;gap:10px;font-size:12px;color:var(--ink2)}
+.person .trust b{font-family:"Barlow Condensed",sans-serif;font-size:14px;color:var(--ink)}
+.person .tags{display:flex;flex-wrap:wrap;gap:4px}
+.person .tags span{font-size:11.5px;padding:3px 8px;border-radius:999px;background:var(--sf2);color:var(--ink2)}
+.person .cta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;flex-wrap:wrap}
+.person .bio{font-size:12.5px;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ---------- requests ---------- */
+.req{display:flex;flex-direction:column;gap:10px;padding:14px;background:var(--sf);border:1px solid var(--line);border-radius:18px}
+.req .who{display:flex;align-items:center;gap:12px;cursor:pointer}
+.req .who .t{flex:1;min-width:0}
+.req .who b{display:block;font-size:15px}
+.req .who span{font-size:12.5px;color:var(--ink2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.req .msg{font-size:13px;background:var(--sf2);padding:10px 12px;border-radius:12px;color:var(--ink)}
+.req .acts{display:flex;gap:8px}
+.req .acts .btn{flex:1}
+.req.pending{border-style:dashed}
+
+/* ---------- talk list / chat ---------- */
+.row{display:flex;align-items:center;gap:12px;padding:12px 8px;border-radius:16px;cursor:pointer;transition:background .15s}
+.row:hover{background:var(--sf)}
+.row .txt{flex:1;min-width:0}
+.row .txt b{display:block;font-size:15px}
+.row .txt em{font-style:normal;font-size:11.5px;color:var(--amber);display:block}
+.row .txt span{display:block;font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .txt span.unread{color:var(--ink);font-weight:500}
+.row time{font-size:11px;color:var(--ink3);font-family:"Barlow Condensed",sans-serif}
+.row .n{width:20px;height:20px;border-radius:10px;background:var(--pink);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;margin:4px 0 0 auto}
+.chat-top{display:flex;align-items:center;gap:10px;padding:12px 12px 10px;border-bottom:1px solid var(--line);background:var(--sf)}
+.chat-top .who{flex:1;min-width:0}
+.chat-top .who b{display:block;font-size:15px}
+.chat-top .who span{display:block;font-size:11.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notebar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--amber-soft);border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer}
+.notebar .ico{width:16px;height:16px;color:var(--amber)}
+.notebar b{color:var(--ink)}
+.notebar span{color:var(--ink2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.msgs{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:8px}
+.msgs .sys{align-self:center;font-size:12px;color:var(--ink3);background:var(--sf2);padding:6px 12px;border-radius:999px;margin:6px 0;text-align:center}
+.bubble{max-width:80%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.5;animation:rise .25s ease-out;word-break:break-word}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bubble.me{align-self:flex-end;background:var(--amber);color:var(--amber-ink);border-bottom-right-radius:6px}
+.bubble.them{align-self:flex-start;background:var(--sf);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bubble time{display:block;font-size:10px;opacity:.6;margin-top:3px;text-align:right;font-family:"Barlow Condensed",sans-serif}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 16px;background:var(--sf);border:1px solid var(--line);border-radius:18px;border-bottom-left-radius:6px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--ink3);animation:bounce 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.quick{display:flex;gap:8px;padding:8px 12px;overflow-x:auto;scrollbar-width:none;background:var(--sf);border-top:1px solid var(--line)}
+.quick::-webkit-scrollbar{display:none}
+.quick button{flex:none;font-size:12.5px;padding:7px 12px;border-radius:999px;background:var(--sf2);color:var(--ink2);transition:background .15s}
+.quick button:hover{background:var(--amber-soft);color:var(--ink)}
+.composer{display:flex;gap:8px;padding:8px 12px calc(12px + env(safe-area-inset-bottom));background:var(--sf)}
+.composer input{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:11px 16px;outline:none;transition:border-color .2s}
+.composer input:focus{border-color:var(--amber)}
+.composer button{width:44px;height:44px;border-radius:50%;background:var(--amber);display:grid;place-items:center;transition:transform .15s}
+.composer button:active{transform:scale(.9)}
+.composer button .ico{stroke:var(--amber-ink)}
+
+/* ---------- sheet ---------- */
+.sheet{position:absolute;inset:0;z-index:15;display:none;background:rgba(10,8,25,.6);backdrop-filter:blur(2px)}
+.sheet.open{display:block}
+.sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:90%;background:var(--bg);border-radius:26px 26px 0 0;overflow-y:auto;animation:up .3s cubic-bezier(.2,.8,.2,1);padding:18px 20px calc(24px + env(safe-area-inset-bottom))}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 16px}
+.ph{display:flex;gap:14px;align-items:center}
+.ph h2{font-size:20px;display:flex;align-items:center;gap:6px}
+.ph p{font-size:13px;color:var(--ink2)}
+.tr3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:16px 0}
+.tr3 div{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.tr3 b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:24px;font-weight:600;line-height:1.1}
+.tr3 span{font-size:11px;color:var(--ink2)}
+.kv{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.kv div{display:flex;gap:12px;font-size:13.5px}
+.kv small{width:72px;flex:none;color:var(--ink3);font-size:12px;padding-top:2px}
+.kv .tags{display:flex;flex-wrap:wrap;gap:5px}
+.kv .tags span{font-size:12px;padding:4px 9px;border-radius:999px;background:var(--sf2);color:var(--ink2)}
+.cta-row{display:flex;gap:10px}
+.cta-row .btn{flex:1}
+
+/* ---------- note (当日メモ) ---------- */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12.5px;color:var(--ink2);font-weight:500}
+.field input,.field textarea,.field select{border:1px solid var(--line);background:var(--sf);border-radius:12px;padding:10px 13px;outline:none;transition:border-color .2s;width:100%}
+.field textarea{resize:vertical;min-height:70px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--amber)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.check{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sf);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;cursor:pointer;font-size:13.5px}
+.check input{width:18px;height:18px;accent-color:var(--ok)}
+.check.on{border-color:var(--ok)}
+.check.on span{color:var(--ink2);text-decoration:line-through}
+
+/* ---------- profile ---------- */
+.me-card{display:flex;align-items:center;gap:16px;padding:6px 4px 14px}
+.me-card h2{font-size:20px}
+.me-card p{color:var(--ink2);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--sf);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stat b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:28px;font-weight:600;line-height:1.1}
+.stat span{font-size:11.5px;color:var(--ink2)}
+.tagpick{display:flex;flex-wrap:wrap;gap:7px}
+.tagpick button{font-size:12.5px;padding:6px 11px;border-radius:999px;background:var(--sf);border:1px solid var(--line);color:var(--ink2);transition:all .15s}
+.tagpick button.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber)}
+.toggle{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--sf);border:1px solid var(--line);border-radius:14px;margin-bottom:8px;cursor:pointer}
+.toggle .t b{display:block;font-size:14px}
+.toggle .t span{font-size:12px;color:var(--ink2)}
+.sw{width:44px;height:26px;border-radius:13px;background:var(--sf3);position:relative;transition:background .2s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on .sw{background:var(--ok)}
+.toggle.on .sw::after{transform:translateX(18px)}
+.note{font-size:12.5px;color:var(--ink3);line-height:1.6;padding:12px 4px}
+
+/* ---------- match overlay ---------- */
+#match{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:30px;text-align:center;color:#fff;background:radial-gradient(120% 90% at 50% 0%,#5B3FB0 0%,#2A1E63 50%,#14122B 100%)}
+#match.open{display:flex;animation:fadein .3s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+#match .eyebrow{font-family:"Barlow Condensed",sans-serif;letter-spacing:.2em;font-size:13px;color:var(--amber);font-weight:600}
+#match .title{font-family:"Barlow Condensed",sans-serif;font-size:56px;font-weight:700;letter-spacing:.02em;line-height:1;animation:pop .6s cubic-bezier(.34,1.56,.64,1)}
+#match .sub{font-size:14px;opacity:.9;line-height:1.7;max-width:280px}
+#match .pair{display:flex;align-items:center;margin:8px 0}
+#match .pair .avatar{width:96px;height:96px;font-size:36px;border:4px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+#match .pair .avatar:first-child{animation:slideL .6s cubic-bezier(.34,1.56,.64,1)}
+#match .pair .avatar:last-child{animation:slideR .6s cubic-bezier(.34,1.56,.64,1);margin-left:-16px}
+@keyframes slideL{from{transform:translateX(-80px);opacity:0}}
+@keyframes slideR{from{transform:translateX(80px);opacity:0}}
+#match .btn{min-width:230px}
+#match .btn.ghost{background:rgba(255,255,255,.14);color:#fff}
+.lights{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lights i{position:absolute;bottom:-20px;width:6px;height:26px;border-radius:3px;animation:wave 2.6s ease-in-out infinite;opacity:.9;box-shadow:0 0 12px currentColor;background:currentColor}
+@keyframes wave{0%,100%{transform:translateY(0) rotate(-14deg)}50%{transform:translateY(-14px) rotate(14deg)}}
+
+.toast{position:absolute;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:30;max-width:calc(100% - 40px);text-align:center;line-height:1.5}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* ---------- シート共通の閉じるボタン ---------- */
+.sheetx{position:absolute;top:14px;right:16px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--ink3);background:var(--sf2);transition:background .2s,transform .15s}
+.sheetx:hover{background:var(--sf3)}.sheetx:active{transform:scale(.92)}
+.sheetx .ico{width:15px;height:15px}
+.btn.danger.solid{background:var(--warn);color:#fff;border:0}
+.iconbtn{position:relative}
+
+/* ---------- お知らせ ---------- */
+.nrow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--sf);border:1px solid var(--line);border-radius:14px;cursor:pointer;transition:transform .15s}
+.nrow:hover{transform:translateY(-1px)}
+.nrow>i{width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.nrow.new>i{background:var(--pink);box-shadow:0 0 8px var(--pink)}
+.nrow .t{flex:1;min-width:0}
+.nrow b{display:block;font-size:13.5px;font-weight:500;line-height:1.45}
+.nrow span{font-size:11.5px;color:var(--ink2)}
+.nrow .ico{color:var(--ink3);width:16px;height:16px}
+
+/* ---------- はじめての案内 ---------- */
+#intro{position:absolute;inset:0;z-index:25;display:none;align-items:center;justify-content:center;padding:28px;color:#fff;background:radial-gradient(120% 90% at 50% 0%,#5B3FB0 0%,#2A1E63 50%,#14122B 100%)}
+#intro.open{display:flex;animation:fadein .3s}
+.intro-card{position:relative;width:100%;max-width:340px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px}
+.intro-card .big{width:88px;height:88px;border-radius:26px;background:rgba(255,255,255,.1);display:grid;place-items:center;animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+.intro-card .big .ico{width:44px;height:44px;stroke:var(--amber);stroke-width:1.6}
+.intro-card .eyebrow{font-family:"Barlow Condensed",sans-serif;letter-spacing:.2em;font-size:12px;color:var(--amber);font-weight:600}
+.intro-card h2{font-size:22px;line-height:1.3;text-wrap:balance}
+.intro-card p{font-size:13.5px;opacity:.85;line-height:1.75}
+.dots{display:flex;gap:6px}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .25s}.dots i.on{width:18px;background:var(--amber)}
+.intro-card .btn{min-width:230px;margin-top:6px}
+.intro-card .skip{font-size:12.5px;opacity:.7;padding:6px 12px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<div id="app">
+
+  <!-- ===== ホーム：現場 ===== -->
+  <section class="screen active" id="s-home">
+    <div class="top">
+      <div class="brand"><span class="mark"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M13 6v12" stroke-dasharray="2 2"/></svg></span>レンバン</div>
+      <div style="display:flex;align-items:center;gap:4px"><span class="chip"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg><span id="home-area">関東</span></span>
+      <button class="iconbtn" id="b-notif" title="お知らせ"><svg class="ico" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="badge" id="badge-notif" hidden></span></button></div>
+    </div>
+    <div class="seg homeseg" id="home-seg"><button data-v="next" class="on">これから</button><button data-v="diary">手帳</button></div>
+    <div class="scroll" id="home"></div>
+  </section>
+
+  <!-- ===== さがす ===== -->
+  <section class="screen" id="s-search">
+    <div class="top"><h1>公演をさがす</h1><button class="btn sm ghost" id="b-search-clear">条件をクリア</button></div>
+    <div class="scroll" id="search" style="padding-top:4px"></div>
+  </section>
+
+  <!-- ===== 申請 ===== -->
+  <section class="screen" id="s-req">
+    <div class="top"><h1>連番申請</h1></div>
+    <div class="scroll" id="req"></div>
+  </section>
+
+  <!-- ===== トーク ===== -->
+  <section class="screen" id="s-talk">
+    <div class="top"><h1>トーク</h1></div>
+    <div class="scroll" id="talk"></div>
+  </section>
+
+  <!-- ===== マイページ ===== -->
+  <section class="screen" id="s-me">
+    <div class="top"><h1>マイページ</h1><button class="iconbtn" id="b-theme" title="テーマ切替"><svg class="ico" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div>
+    <div class="scroll" id="me"></div>
+  </section>
+
+  <nav class="tabs">
+    <button data-tab="home" class="on"><svg viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12" stroke-dasharray="2 3"/></svg>現場</button>
+    <button data-tab="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>さがす</button>
+    <button data-tab="req"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M17 8h4M19 6v4"/></svg>申請<span class="badge" id="badge-req" hidden></span></button>
+    <button data-tab="talk"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>トーク<span class="badge" id="badge-talk" hidden></span></button>
+    <button data-tab="me"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>マイページ</button>
+  </nav>
+
+  <!-- ===== 公演ページ ===== -->
+  <div class="page" id="p-event">
+    <div class="top" style="padding-bottom:4px"><button class="iconbtn" id="b-ev-back"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button><span class="chip" id="ev-count"></span></div>
+    <div class="ev-hero" id="ev-hero"></div>
+    <div id="ev-filters"></div>
+    <div class="scroll" id="ev-people" style="padding-top:8px"></div>
+  </div>
+
+  <!-- ===== チャット ===== -->
+  <div class="page" id="p-chat">
+    <div class="chat-top">
+      <button class="iconbtn" id="b-chat-back"><svg class="ico" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="avatar sm" id="chat-avatar"></div>
+      <div class="who"><b id="chat-name"></b><span id="chat-ev"></span></div>
+      <button class="iconbtn" id="b-chat-profile"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>
+    </div>
+    <div class="notebar" id="notebar"><svg class="ico" viewBox="0 0 24 24"><path d="M5 4h14v16l-3-2-4 2-4-2-3 2z"/><path d="M9 9h6M9 13h4"/></svg><b>当日メモ</b><span id="note-sum">集合場所・時間を決めましょう</span><svg class="ico" viewBox="0 0 24 24" style="color:var(--ink3)"><path d="M9 5l7 7-7 7"/></svg></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="quick" id="quick"></div>
+    <form class="composer" id="composer">
+      <input id="msg-input" placeholder="メッセージを入力" autocomplete="off">
+      <button type="submit" title="送信"><svg class="ico" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2-7z"/></svg></button>
+    </form>
+  </div>
+
+  <!-- ===== 人物シート ===== -->
+  <div class="sheet" id="sh-person"><div class="panel" id="sh-person-body"></div></div>
+  <!-- ===== 申請シート ===== -->
+  <div class="sheet" id="sh-apply"><div class="panel" id="sh-apply-body"></div></div>
+  <!-- ===== 当日メモ ===== -->
+  <div class="sheet" id="sh-note"><div class="panel" id="sh-note-body"></div></div>
+  <!-- ===== Xに投稿 / Xから取り込み ===== -->
+  <div class="sheet" id="sh-x"><div class="panel" id="sh-x-body"></div></div>
+  <!-- ===== 手帳の記録 ===== -->
+  <div class="sheet" id="sh-diary"><div class="panel" id="sh-diary-body"></div></div>
+  <!-- ===== 条件設定 ===== -->
+  <div class="sheet" id="sh-cond"><div class="panel" id="sh-cond-body"></div></div>
+  <!-- ===== 自分の募集内容 ===== -->
+  <div class="sheet" id="sh-mytk"><div class="panel" id="sh-mytk-body"></div></div>
+  <!-- ===== お知らせ ===== -->
+  <div class="sheet" id="sh-notif"><div class="panel" id="sh-notif-body"></div></div>
+  <!-- ===== 確認・入力ダイアログ（prompt/confirm の代わり） ===== -->
+  <div class="sheet" id="sh-dialog"><div class="panel" id="sh-dialog-body"></div></div>
+  <!-- ===== 通報・ブロック ===== -->
+  <div class="sheet" id="sh-report"><div class="panel" id="sh-report-body"></div></div>
+  <!-- ===== 終演後（ありがとう→手帳） ===== -->
+  <div class="sheet" id="sh-finish"><div class="panel" id="sh-finish-body"></div></div>
+
+  <!-- ===== 成立オーバーレイ ===== -->
+  <div id="match">
+    <div class="lights" id="lights"></div>
+    <div class="eyebrow">RENBAN CONFIRMED</div>
+    <div class="title">連番成立</div>
+    <div class="pair"><div class="avatar" id="m-me"></div><div class="avatar" id="m-them"></div></div>
+    <div class="sub" id="m-sub"></div>
+    <button class="btn" id="b-match-chat">トークで当日の相談をする</button>
+    <button class="btn ghost" id="b-match-close">あとで</button>
+  </div>
+
+  <!-- ===== はじめての案内 ===== -->
+  <div id="intro"><div class="lights" id="intro-lights"></div><div class="intro-card" id="intro-card"></div></div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ================= マスタデータ（架空のアーティスト） ================= */
+const ARTISTS=[
+ {id:'gh',name:'GLASS HORIZON',genre:'ロックバンド',hue:200},
+ {id:'rs',name:'ラムネ少女隊',genre:'アイドル',hue:330},
+ {id:'sa',name:'天野ソラ',genre:'シンガーソングライター',hue:45},
+ {id:'nf',name:'NIGHTFLOWER',genre:'ダンス&ボーカル',hue:275},
+ {id:'nm',name:'眠らない街',genre:'ヒップホップ',hue:150},
+ {id:'lr',name:'星野リリカ',genre:'アニソン',hue:15},
+ {id:'kz',name:'カゼノネ',genre:'ロックバンド',hue:110},
+ {id:'as',name:'AUTUMN SONIC 2026',genre:'フェス',hue:30,lineup:['GLASS HORIZON','眠らない街','カゼノネ','天野ソラ 他']},
+ {id:'mw',name:'MIDWINTER FES',genre:'フェス',hue:190,lineup:['NIGHTFLOWER','ラムネ少女隊','星野リリカ 他']}
+];
+/* kind: ワンマン/ツアー/フェス/リリースイベント/ファンミーティング/対バン  vt: アリーナ/ホール/ライブハウス/ドーム/野外 */
+const EVENTS=[
+ {id:'e1', a:'gh',kind:'ツアー',tour:'TOUR 2026 "Afterglow"',venue:'横浜アリーナ',city:'横浜',region:'関東',vt:'アリーナ',date:'2026-10-04',open:'17:00',start:'18:00',type:'指定席'},
+ {id:'e2', a:'gh',kind:'ツアー',tour:'TOUR 2026 "Afterglow"',venue:'日本武道館',city:'東京',region:'関東',vt:'アリーナ',date:'2026-11-21',open:'17:00',start:'18:00',type:'指定席'},
+ {id:'e3', a:'rs',kind:'ツアー',tour:'秋の大感謝祭 2026',venue:'Zepp Haneda',city:'東京',region:'関東',vt:'ライブハウス',date:'2026-09-27',open:'16:30',start:'17:30',type:'スタンディング'},
+ {id:'e4', a:'rs',kind:'ツアー',tour:'秋の大感謝祭 2026',venue:'Zepp Nagoya',city:'名古屋',region:'東海',vt:'ライブハウス',date:'2026-10-18',open:'16:30',start:'17:30',type:'スタンディング'},
+ {id:'e5', a:'sa',kind:'ツアー',tour:'弾き語りツアー「灯り」',venue:'東京国際フォーラム ホールA',city:'東京',region:'関東',vt:'ホール',date:'2026-10-11',open:'17:00',start:'18:00',type:'指定席'},
+ {id:'e6', a:'nf',kind:'ツアー',tour:'WORLD TOUR 2026 in JAPAN',venue:'さいたまスーパーアリーナ',city:'さいたま',region:'関東',vt:'アリーナ',date:'2026-10-25',open:'16:00',start:'18:00',type:'指定席'},
+ {id:'e7', a:'nf',kind:'ツアー',tour:'WORLD TOUR 2026 in JAPAN',venue:'大阪城ホール',city:'大阪',region:'関西',vt:'アリーナ',date:'2026-11-01',open:'16:00',start:'18:00',type:'指定席'},
+ {id:'e8', a:'nm',kind:'ワンマン',tour:'ONE MAN LIVE "夜明け前"',venue:'Zepp DiverCity',city:'東京',region:'関東',vt:'ライブハウス',date:'2026-11-08',open:'17:00',start:'18:00',type:'スタンディング'},
+ {id:'e9', a:'sa',kind:'ツアー',tour:'弾き語りツアー「灯り」',venue:'福岡サンパレス',city:'福岡',region:'九州',vt:'ホール',date:'2026-12-06',open:'17:00',start:'18:00',type:'指定席'},
+ {id:'e10',a:'as',kind:'フェス',tour:'2日間・4ステージ',venue:'幕張メッセ',city:'千葉',region:'関東',vt:'野外',date:'2026-09-20',open:'09:00',start:'10:30',type:'ブロック指定'},
+ {id:'e11',a:'rs',kind:'リリースイベント',tour:'新曲「ラムネ色の空」発売記念',venue:'ラゾーナ川崎 ルーファ広場',city:'川崎',region:'関東',vt:'野外',date:'2026-09-19',open:'13:00',start:'14:00',type:'観覧自由'},
+ {id:'e12',a:'nf',kind:'ファンミーティング',tour:'NIGHTFLOWER FAN MEETING 2026',venue:'パシフィコ横浜 国立大ホール',city:'横浜',region:'関東',vt:'ホール',date:'2026-10-31',open:'13:00',start:'14:00',type:'指定席'},
+ {id:'e13',a:'lr',kind:'ワンマン',tour:'LIRIKA LIVE 2026 "STARLIGHT"',venue:'東京ガーデンシアター',city:'東京',region:'関東',vt:'アリーナ',date:'2026-11-15',open:'16:00',start:'17:00',type:'指定席'},
+ {id:'e14',a:'lr',kind:'ツアー',tour:'LIRIKA LIVE 2026 "STARLIGHT"',venue:'Zepp Sapporo',city:'札幌',region:'北海道・東北',vt:'ライブハウス',date:'2026-12-12',open:'17:00',start:'18:00',type:'スタンディング'},
+ {id:'e15',a:'kz',kind:'対バン',tour:'カゼノネ × 眠らない街 2MAN',venue:'渋谷CLUB QUATTRO',city:'東京',region:'関東',vt:'ライブハウス',date:'2026-10-09',open:'18:00',start:'19:00',type:'スタンディング'},
+ {id:'e16',a:'kz',kind:'ツアー',tour:'風の音ツアー 2026',venue:'仙台GIGS',city:'仙台',region:'北海道・東北',vt:'ライブハウス',date:'2026-11-28',open:'17:00',start:'18:00',type:'スタンディング'},
+ {id:'e17',a:'gh',kind:'ツアー',tour:'TOUR 2026 "Afterglow"',venue:'広島グリーンアリーナ',city:'広島',region:'中国・四国',vt:'アリーナ',date:'2026-12-19',open:'17:00',start:'18:00',type:'指定席'},
+ {id:'e18',a:'mw',kind:'フェス',tour:'屋内フェス・2ステージ',venue:'インテックス大阪',city:'大阪',region:'関西',vt:'ホール',date:'2026-12-26',open:'11:00',start:'12:00',type:'ブロック指定'},
+ {id:'e19',a:'sa',kind:'リリースイベント',tour:'アルバム「灯り」発売記念 ミニライブ',venue:'タワーレコード渋谷店',city:'東京',region:'関東',vt:'ライブハウス',date:'2026-09-23',open:'18:30',start:'19:00',type:'整理番号'},
+ {id:'e20',a:'nm',kind:'ツアー',tour:'"夜明け前" TOUR',venue:'なんばHatch',city:'大阪',region:'関西',vt:'ライブハウス',date:'2026-12-04',open:'17:00',start:'18:00',type:'スタンディング'},
+ {id:'e21',a:'gh',kind:'ワンマン',tour:'年末スペシャル "Afterglow Final"',venue:'東京ドーム',city:'東京',region:'関東',vt:'ドーム',date:'2026-12-28',open:'15:30',start:'17:00',type:'指定席'}
+];
+const KINDS=['ワンマン','ツアー','フェス','リリースイベント','ファンミーティング','対バン'];
+
+/* 推しの予定（連番以外で毎日開く理由）。kind: 締切/当落/リリース/配信/TV/一般発売 */
+const SCHEDULE=[
+ {a:'gh',date:'2026-09-16',kind:'締切',title:'東京ドーム "Afterglow Final" FC先行 申込締切'},
+ {a:'sa',date:'2026-09-17',kind:'配信',title:'YouTube生配信「灯り」制作裏話 21:00〜'},
+ {a:'gh',date:'2026-09-18',kind:'TV',title:'ミュージックナイト 出演（新曲テレビ初披露）'},
+ {a:'rs',date:'2026-09-19',kind:'リリース',title:'新曲「ラムネ色の空」配信リリース'},
+ {a:'sa',date:'2026-09-23',kind:'リリース',title:'アルバム「灯り」発売'},
+ {a:'gh',date:'2026-09-25',kind:'当落',title:'東京ドーム FC先行 当落発表 18:00'},
+ {a:'nf',date:'2026-09-26',kind:'一般発売',title:'さいたま・大阪 一般発売 10:00〜'},
+ {a:'gh',date:'2026-10-02',kind:'配信',title:'横アリ前夜 メンバー生配信'},
+ {a:'sa',date:'2026-10-05',kind:'締切',title:'福岡公演 2次先行 申込締切'},
+ {a:'lr',date:'2026-10-08',kind:'当落',title:'STARLIGHT ツアー 当落発表'},
+ {a:'rs',date:'2026-10-10',kind:'TV',title:'土曜の音楽祭 出演'},
+ {a:'gh',date:'2026-11-03',kind:'一般発売',title:'東京ドーム 一般発売'}
+];
+/* 参戦履歴（手帳）。過去の公演 */
+const PAST=[
+ {id:'p1',a:'gh',kind:'ツアー',tour:'TOUR 2025 "Blue Hour"',venue:'Zepp Haneda',city:'東京',date:'2025-11-22',type:'スタンディング'},
+ {id:'p2',a:'sa',kind:'ワンマン',tour:'冬の弾き語り「ともしび」',venue:'昭和女子大学 人見記念講堂',city:'東京',date:'2026-01-24',type:'指定席'},
+ {id:'p3',a:'gh',kind:'ツアー',tour:'TOUR 2026 "Afterglow"',venue:'Zepp Nagoya',city:'名古屋',date:'2026-05-09',type:'スタンディング'},
+ {id:'p4',a:'as',kind:'フェス',tour:'SUMMER SONIC WAVE 2026',venue:'幕張メッセ',city:'千葉',date:'2026-08-15',type:'ブロック指定'},
+ {id:'p5',a:'gh',kind:'ツアー',tour:'TOUR 2026 "Afterglow"',venue:'Zepp Osaka Bayside',city:'大阪',date:'2026-08-30',type:'スタンディング'}
+];
+/* 「今日」。デモの基準日（2026-09-14）より後に開いたときは、公演・予定・履歴の日付を同じ日数だけ後ろにずらし、いつ開いても生きた画面にする */
+const BASE_ISO='2026-09-14';
+const _n=new Date();const TODAY=new Date(_n.getFullYear(),_n.getMonth(),_n.getDate());
+const isoOf=x=>x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');
+const TODAY_ISO=isoOf(TODAY);
+const SHIFT=Math.max(0,Math.round((TODAY-new Date(BASE_ISO+'T00:00:00'))/864e5));
+function shiftISO(iso){if(!SHIFT)return iso;const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+SHIFT);return isoOf(d);}
+[EVENTS,SCHEDULE,PAST].forEach(l=>l.forEach(x=>x.date=shiftISO(x.date)));
+const GENRES=[...new Set(ARTISTS.map(a=>a.genre))];
+const REGIONS=['関東','関西','東海','九州','北海道・東北','中国・四国'];
+const VTYPES=['アリーナ','ドーム','ホール','ライブハウス','野外'];
+const STYLE_TAGS=['声出し全力','静かに聴く派','物販並ぶ','物販行かない','開場前から待機','開演ぎりぎり','打ち上げOK','終演後は即帰宅','遠征組','初参戦','ペンライト振る','写真交換OK'];
+const TICKET={two:'2枚持ち（1枚譲れる）',one:'1枚持ち（隣を探してる）',none:'チケットなし（連番で申込希望）'};
+
+/* ユーザー（架空） gender: F/M/N  friendly: 申請を受けてくれるか */
+const USERS=[
+ {id:1,handle:'mio_gh',name:'みお',age:'20代前半',gender:'F',oshi:['gh','sa'],count:14,renban:6,thanks:9,verified:true,hue:200,friendly:true,
+  tags:['声出し全力','物販並ぶ','開場前から待機'],bio:'GLASS HORIZON のツアーは全通してます。物販は朝から並ぶタイプ。初めての方でも気にせず声かけてください。',
+  tickets:{e1:'one',e2:'two'},
+  opener:'申請ありがとうございます！横アリ、一緒に楽しみましょう。当日は物販に朝から並ぶ予定なんですが、どうしますか？',
+  replies:['物販は開場3時間前くらいに並べば大丈夫だと思います','入場は開場30分前に新横浜駅の改札で集合でどうですか？','セトリ予想、今回は新曲多めだと思ってます','終わったあと軽く感想会したいです！']},
+ {id:2,handle:'ken_afterglow',name:'けん',age:'30代前半',gender:'M',oshi:['gh'],count:22,renban:11,thanks:18,verified:true,hue:210,friendly:true,
+  tags:['静かに聴く派','物販行かない','終演後は即帰宅'],bio:'GH歴10年。座って聴くことが多いですが、盛り上がるところは盛り上がります。連番相手には迷惑かけないのが信条。',
+  tickets:{e1:'two',e2:'one'},
+  opener:'こちらこそよろしくお願いします。チケットは当日、入場口の前でお渡しします。',
+  replies:['当日は開場15分前に会場前で大丈夫です','グッズは事前通販で買ったので並びません','静かに聴くタイプですが、周りに合わせますよ','帰りは電車が混むので、早めに出るかもしれません']},
+ {id:3,handle:'ramune_yui',name:'ゆい',age:'20代前半',gender:'F',oshi:['rs'],count:31,renban:15,thanks:27,verified:true,hue:330,friendly:true,
+  tags:['声出し全力','ペンライト振る','打ち上げOK','遠征組'],bio:'ラムネ少女隊の推しは「なぎさ」。ペンライトは3本持って行きます。遠征仲間も募集中！名古屋も行きます。',
+  tickets:{e3:'one',e4:'one'},
+  opener:'よろしくお願いします！Zepp Haneda、整理番号どのあたりですか？',
+  replies:['整理番号が近ければ一緒に入れますね','ペンライト、なぎさカラーは水色です','終演後、羽田のカフェで感想会しませんか？','名古屋も一緒に行けたら嬉しいです']},
+ {id:4,handle:'sora_listener',name:'たかし',age:'40代',gender:'M',oshi:['sa'],count:8,renban:2,thanks:4,verified:false,hue:45,friendly:false,
+  tags:['静かに聴く派','開演ぎりぎり','終演後は即帰宅'],bio:'天野ソラさんの弾き語りが好きです。仕事帰りに行くので開演ぎりぎりになります。',
+  tickets:{e5:'two'},
+  opener:'',replies:['仕事の都合で返信が遅くなります']},
+ {id:5,handle:'nf_haru',name:'はる',age:'20代後半',gender:'F',oshi:['nf'],count:12,renban:5,thanks:8,verified:true,hue:275,friendly:true,
+  tags:['ペンライト振る','写真交換OK','打ち上げOK'],bio:'NIGHTFLOWER のさいたま、1枚余ってます。同じ推しの人だと嬉しいです。トレカ交換もできます。',
+  tickets:{e6:'two',e7:'none'},
+  opener:'マッチありがとうございます！さいたま、推しは誰ですか？',
+  replies:['トレカは当日持っていきますね','さいたま新都心の改札で集合でどうでしょう','大阪も行きたいんですが、チケットが取れてなくて','終演後、写真撮りましょう！']},
+ {id:6,handle:'daichi_nm',name:'だいち',age:'20代後半',gender:'M',oshi:['nm','gh'],count:9,renban:3,thanks:5,verified:true,hue:150,friendly:true,
+  tags:['声出し全力','物販並ぶ','打ち上げOK'],bio:'眠らない街のワンマン初めてです。一緒に盛り上がれる人希望。GHも好きなので武道館も行きます。',
+  tickets:{e8:'one',e2:'none'},
+  opener:'よろしくお願いします！Zepp DiverCity、初ワンマンなので楽しみです',
+  replies:['物販は開場2時間前から並ぼうと思ってます','スタンディングなので前の方に行きたいです','お台場で軽く打ち上げしましょう','武道館の抽選、当たりますように']},
+ {id:7,handle:'aoi_sings',name:'あおい',age:'30代前半',gender:'F',oshi:['sa','gh'],count:19,renban:8,thanks:14,verified:true,hue:50,friendly:true,
+  tags:['静かに聴く派','開場前から待機','写真交換OK'],bio:'弾き語りツアーは毎回行ってます。静かに聴きたい派なので、同じ雰囲気の方だと嬉しいです。',
+  tickets:{e5:'one',e9:'two'},
+  opener:'こちらこそよろしくお願いします。国際フォーラム、席は2階でしたよね？',
+  replies:['有楽町駅の中央口で開場30分前に待ち合わせでどうでしょう','ソラさんの新曲、絶対やると思います','福岡も行くので、遠征仲間だと嬉しいです','終演後は余韻に浸りたいので、静かに解散で']},
+ {id:8,handle:'rin_rsfan',name:'りん',age:'10代後半',gender:'F',oshi:['rs'],count:3,renban:0,thanks:0,verified:false,hue:340,friendly:true,
+  tags:['初参戦','ペンライト振る','開場前から待機'],bio:'ラムネ少女隊は今回で3回目。連番は初めてなので、教えてくれる方だと安心です。',
+  tickets:{e3:'none'},
+  opener:'申請受けてくれてありがとうございます！連番初めてなので、色々教えてください',
+  replies:['整理番号ってどこで見るんですか？','ペンライトは何本持っていけばいいですか？','開場何分前に行けばいいですか？','ありがとうございます、安心しました']},
+ {id:9,handle:'shun_gh_nf',name:'しゅん',age:'20代前半',gender:'M',oshi:['gh','nf'],count:17,renban:7,thanks:12,verified:true,hue:230,friendly:true,
+  tags:['声出し全力','ペンライト振る','遠征組','打ち上げOK'],bio:'関西から遠征します。横アリと大阪城ホール両方。遠征のホテル情報とか交換できる人歓迎。',
+  tickets:{e1:'none',e7:'two'},
+  opener:'よろしくお願いします！横アリ、関西から行くので当日は新横浜に昼には着いてます',
+  replies:['新横浜のホテル、駅前に取れました','大阪城ホールは地元なので案内できますよ','物販はどうしますか？並ぶなら一緒に行きます','終演後は新幹線の時間があるので早めに出ます']},
+ {id:10,handle:'nana_nf',name:'なな',age:'20代後半',gender:'F',oshi:['nf'],count:25,renban:12,thanks:21,verified:true,hue:290,friendly:false,
+  tags:['ペンライト振る','写真交換OK','物販並ぶ'],bio:'NIGHTFLOWER の日本公演は全部行きます。さいたまと大阪、どちらも連番相手探してます。',
+  tickets:{e6:'one',e7:'one'},
+  opener:'',replies:['すみません、別の方と連番が決まりました']},
+ {id:11,handle:'yuto_quiet',name:'ゆうと',age:'30代後半',gender:'M',oshi:['sa','nm'],count:6,renban:1,thanks:2,verified:true,hue:40,friendly:true,
+  tags:['静かに聴く派','開演ぎりぎり','終演後は即帰宅'],bio:'仕事帰りにふらっと行くタイプ。隣の席の方に迷惑かけません。福岡は出張ついでに。',
+  tickets:{e9:'one',e8:'none'},
+  opener:'よろしくお願いします。福岡、出張と重なったので行けることになりました',
+  replies:['開演直前に着くと思うので、席で会いましょう','ソラさんの歌、生で聴くと全然違いますよね','終演後はすぐホテルに戻ります','また別の公演でもよろしくお願いします']},
+ {id:12,handle:'koharu_rs',name:'こはる',age:'20代前半',gender:'F',oshi:['rs','sa'],count:11,renban:4,thanks:7,verified:true,hue:320,friendly:true,
+  tags:['声出し全力','物販並ぶ','打ち上げOK','遠征組'],bio:'名古屋在住。羽田は遠征、名古屋は地元なので案内できます。物販は並ぶ派。',
+  tickets:{e4:'two',e3:'none'},
+  opener:'名古屋、地元なので当日は駅で待ち合わせしましょう！',
+  replies:['Zepp Nagoya は駅から少し歩くので、案内しますね','名古屋メシ、終演後に行きましょう','物販は開場2時間前から並ぶ予定です','羽田も行きたいけどチケットが']},
+ {id:13,handle:'ryo_gh_only',name:'りょう',age:'20代後半',gender:'M',oshi:['gh'],count:28,renban:13,thanks:22,verified:true,hue:195,friendly:true,
+  tags:['声出し全力','開場前から待機','終演後は即帰宅'],bio:'GH以外行きません。武道館、1枚余ってるので譲れます。定価でのお渡しです。',
+  tickets:{e2:'two'},
+  opener:'武道館の件、了解です。チケットは当日、九段下の改札でお渡しします。',
+  replies:['当日は開場1時間前に九段下でどうでしょう','GHの武道館、何年ぶりでしょうね','セトリ、Afterglowのアルバム曲中心だと思います','終演後は混むので早めに出ましょう']},
+ {id:14,handle:'emi_lights',name:'えみ',age:'30代前半',gender:'F',oshi:['nf','rs'],count:15,renban:6,thanks:11,verified:true,hue:280,friendly:true,
+  tags:['ペンライト振る','写真交換OK','初参戦'],bio:'NIGHTFLOWERは今回が初めて。ラムネ少女隊はよく行ってます。誰か一緒に行ってくれると心強いです。',
+  tickets:{e6:'none',e3:'two'},
+  opener:'受けてもらえて嬉しいです！NIGHTFLOWER初めてなので、色々教えてください',
+  replies:['ペンライトの色、推しによって違うんですよね？','さいたま新都心、行ったことないので待ち合わせ助かります','Zepp Hanedaのほうは慣れてるので任せてください','終演後、写真撮ってもらえますか？']},
+ {id:16,handle:'sae_gh',name:'さえ',age:'20代後半',gender:'F',oshi:['gh','sa'],count:16,renban:9,thanks:15,verified:true,hue:205,friendly:true,late:true,
+  tags:['声出し全力','物販並ぶ','打ち上げOK'],bio:'GLASS HORIZON は Afterglow ツアー全部行きます。物販は朝から並ぶ派。終演後に感想を語り合える人だと嬉しいです。',
+  tickets:{e1:'two',e5:'one'},
+  opener:'条件ぴったりですね！横アリ、一緒に楽しみましょう。物販は何時から並びますか？',
+  replies:['私は開場4時間前には並ぶつもりです','アリーナのBブロックなので、かなり近いと思います','新横浜駅の北口で待ち合わせしましょう','終演後、新横浜で軽く感想会したいです']},
+ {id:15,handle:'taiga_nm',name:'たいが',age:'20代前半',gender:'M',oshi:['nm'],count:7,renban:2,thanks:3,verified:false,hue:160,friendly:true,
+  tags:['声出し全力','物販並ぶ','打ち上げOK'],bio:'眠らない街、地元のライブハウス時代から追ってます。ワンマン一緒に盛り上がりましょう。',
+  tickets:{e8:'two'},
+  opener:'よろしくお願いします！1枚余ってるので、当日お渡しします',
+  replies:['物販は朝から並ぶつもりです','スタンディング、前の方行きましょう','終演後お台場で一杯どうですか','整理番号は当日連絡します']}
+];
+
+/* 構造化した属性（条件検索に使う）。voice: loud/quiet, goods: yes/no, after: yes/no, method: hand/digital */
+const AGES=['10代後半','20代前半','20代後半','30代前半','30代後半','40代','50代以上'];
+const EXTRA={
+ 1:{fc:true, voice:'loud', goods:'yes', after:'yes', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'',method:'digital',seats:{e1:'アリーナ',e2:'1階スタンド'}},
+ 2:{fc:true, voice:'quiet',goods:'no', after:'no', travel:false,hotel:false,car:true, beginner:false,minor:false,member:'',method:'hand',seats:{e1:'センター席',e2:'アリーナ'}},
+ 3:{fc:true, voice:'loud', goods:'yes', after:'yes', travel:true, hotel:true, car:false,beginner:false,minor:false,member:'なぎさ',method:'digital',seats:{e3:'整理番号A 100番台',e4:'整理番号B'}},
+ 4:{fc:false,voice:'quiet',goods:'no', after:'no', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'',method:'hand',seats:{e5:'2階S席'}},
+ 5:{fc:true, voice:'loud', goods:'yes', after:'yes', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'ユナ',method:'digital',seats:{e6:'アリーナ',e7:''}},
+ 6:{fc:false,voice:'loud', goods:'yes', after:'yes', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'',method:'hand',seats:{e8:'整理番号B',e2:''}},
+ 7:{fc:true, voice:'quiet',goods:'no', after:'no', travel:true, hotel:false,car:false,beginner:false,minor:false,member:'',method:'digital',seats:{e5:'2階S席',e9:'1階'}},
+ 8:{fc:false,voice:'loud', goods:'yes', after:'no', travel:false,hotel:false,car:false,beginner:true, minor:true, member:'みなみ',method:'hand',seats:{e3:''}},
+ 9:{fc:true, voice:'loud', goods:'yes', after:'yes', travel:true, hotel:true, car:false,beginner:false,minor:false,member:'',method:'digital',seats:{e1:'',e7:'スタンドA'}},
+ 10:{fc:true,voice:'loud', goods:'yes', after:'no', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'ジウ',method:'digital',seats:{e6:'スタンド',e7:'アリーナ'}},
+ 11:{fc:false,voice:'quiet',goods:'no',after:'no', travel:true, hotel:false,car:false,beginner:false,minor:false,member:'',method:'hand',seats:{e9:'2階',e8:''}},
+ 12:{fc:true,voice:'loud', goods:'yes', after:'yes', travel:true, hotel:false,car:true, beginner:false,minor:false,member:'なぎさ',method:'hand',seats:{e4:'整理番号A 50番台',e3:''}},
+ 13:{fc:true,voice:'loud', goods:'no', after:'no', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'',method:'hand',seats:{e2:'アリーナ'}},
+ 14:{fc:false,voice:'loud',goods:'yes', after:'yes', travel:false,hotel:false,car:false,beginner:true, minor:false,member:'ユナ',method:'digital',seats:{e6:'',e3:'整理番号A'}},
+ 15:{fc:false,voice:'loud',goods:'yes', after:'yes', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'',method:'hand',seats:{e8:'整理番号A 30番台'}},
+ 16:{fc:true, voice:'loud', goods:'yes', after:'yes', travel:false,hotel:false,car:false,beginner:false,minor:false,member:'',method:'digital',seats:{e1:'アリーナ Bブロック',e5:'1階'}}
+};
+const MORE_TICKETS={1:{e10:'one',e21:'two'},2:{e21:'one',e17:'two'},3:{e11:'none',e18:'one'},5:{e12:'two',e18:'one'},6:{e15:'one',e10:'two'},7:{e19:'one'},9:{e17:'one',e10:'none'},10:{e12:'one'},12:{e11:'one'},13:{e21:'two',e17:'one'},14:{e13:'one',e18:'none'},15:{e15:'two',e20:'one'},16:{e21:'one'},11:{e13:'two',e20:'none'},8:{e11:'none'},4:{e19:'two'}};
+/* X連携（本番では「Xでログイン」で取得。フォロワー数・アカウント年数は信頼の材料） */
+const XLINK={1:{f:1240,y:6},2:{f:380,y:9},3:{f:3100,y:4},5:{f:860,y:3},7:{f:520,y:7},9:{f:2200,y:5},10:{f:4800,y:6},12:{f:950,y:4},13:{f:1500,y:8},14:{f:410,y:2},16:{f:1780,y:5}};
+USERS.forEach(u=>{Object.assign(u,EXTRA[u.id]);u.x=XLINK[u.id]||null;Object.assign(u.tickets,MORE_TICKETS[u.id]||{});});
+
+/* 条件の定義。value が「問わない」以外のときだけ判定する */
+const CONDS=[
+ {k:'gender', g:'相手について', label:'性別', opts:[['any','問わない'],['same','同性のみ']], test:(u,v)=>S.me.gender==='N'||u.gender===S.me.gender, ng:u=>genderLabel(u.gender)},
+ {k:'ageMin', g:'相手について', label:'年代（下限）', opts:[['any','問わない'],...AGES.map((a,i)=>[String(i),a+'〜'])], test:(u,v)=>AGES.indexOf(u.age)>=+v, ng:u=>u.age},
+ {k:'ageMax', g:'相手について', label:'年代（上限）', opts:[['any','問わない'],...AGES.map((a,i)=>[String(i),'〜'+a])], test:(u,v)=>AGES.indexOf(u.age)<=+v, ng:u=>u.age},
+ {k:'minor',  g:'相手について', label:'未成年', opts:[['any','問わない'],['no','除外']], test:u=>!u.minor, ng:u=>'未成年'},
+ {k:'verified',g:'相手について',label:'本人確認', opts:[['any','問わない'],['yes','済みのみ']], test:u=>u.verified, ng:u=>'本人確認なし'},
+ {k:'fc',     g:'相手について', label:'ファンクラブ', opts:[['any','問わない'],['yes','会員のみ']], test:u=>u.fc, ng:u=>'FC未加入'},
+ {k:'minCount',g:'相手について',label:'参戦回数', opts:[['any','問わない'],['3','3回以上'],['10','10回以上'],['20','20回以上']], test:(u,v)=>u.count>=+v, ng:u=>'参戦'+u.count+'回'},
+ {k:'minRenban',g:'相手について',label:'連番の経験', opts:[['any','問わない'],['1','1回以上'],['5','5回以上']], test:(u,v)=>u.renban>=+v, ng:u=>'連番'+u.renban+'回'},
+ {k:'beginner',g:'相手について',label:'連番初心者', opts:[['any','問わない'],['exclude','経験者のみ'],['only','初心者を優先']], test:(u,v)=>v==='exclude'?!u.beginner:u.beginner, ng:(u,v)=>v==='exclude'?'連番初めて':'経験者'},
+ {k:'oshi',   g:'相手について', label:'推し', opts:[['any','問わない'],['same','一致する人']], test:u=>u.oshi.some(o=>S.me.oshi.includes(o)), ng:u=>'推しが違う'},
+ {k:'ticket', g:'チケット', label:'相手のチケット', opts:[['any','問わない'],['has','持っている'],['give','1枚譲れる'],['none','持っていない（こちらが譲る）']], test:(u,v,ev)=>{const t=u.tickets[ev];return v==='has'?t!=='none':v==='give'?t==='two':t==='none';}, ng:(u,v,ev)=>({two:'2枚持ち',one:'1枚持ち',none:'チケットなし'})[u.tickets[ev]]},
+ {k:'method', g:'チケット', label:'受け渡し方法', opts:[['any','問わない'],['digital','電子チケット分配'],['hand','当日手渡し']], test:(u,v)=>u.method===v, ng:u=>u.method==='hand'?'手渡し希望':'電子分配希望'},
+ {k:'goods',  g:'当日の過ごし方', label:'物販', opts:[['any','どちらでも'],['yes','一緒に並ぶ'],['no','並ばない']], test:(u,v)=>u.goods===v, ng:u=>u.goods==='yes'?'物販並ぶ':'物販行かない'},
+ {k:'voice',  g:'当日の過ごし方', label:'声出し', opts:[['any','どちらでも'],['loud','全力で盛り上がる'],['quiet','静かに聴く']], test:(u,v)=>u.voice===v, ng:u=>u.voice==='loud'?'声出し全力':'静かに聴く派'},
+ {k:'after',  g:'当日の過ごし方', label:'終演後', opts:[['any','どちらでも'],['yes','打ち上げしたい'],['no','すぐ解散']], test:(u,v)=>u.after===v, ng:u=>u.after==='yes'?'打ち上げ希望':'即帰宅'},
+ {k:'travel', g:'当日の過ごし方', label:'遠征', opts:[['any','問わない'],['yes','遠征組同士'],['no','地元の人']], test:(u,v)=>u.travel===(v==='yes'), ng:u=>u.travel?'遠征組':'地元'},
+ {k:'hotel',  g:'当日の過ごし方', label:'ホテル', opts:[['any','問わない'],['yes','シェア希望の人']], test:u=>u.hotel, ng:u=>'ホテルシェアなし'},
+ {k:'car',    g:'当日の過ごし方', label:'移動', opts:[['any','問わない'],['yes','車を出せる人']], test:u=>u.car, ng:u=>'車なし'}
+];
+const COND_GROUPS=['相手について','チケット','当日の過ごし方'];
+const DEFAULT_COND={gender:'any',ageMin:'any',ageMax:'any',minor:'no',verified:'yes',fc:'any',minCount:'3',minRenban:'any',beginner:'any',oshi:'same',ticket:'any',method:'any',goods:'yes',voice:'loud',after:'any',travel:'any',hotel:'any',car:'any'};
+function condFor(ev){return Object.assign({},DEFAULT_COND,S.cond.default,ev&&S.cond.byEvent[ev]||{});}
+function activeConds(c){return CONDS.filter(d=>c[d.k]&&c[d.k]!=='any');}
+function scoreUser(u,ev,c){const act=activeConds(c);const ok=[],ng=[];act.forEach(d=>{(d.test(u,c[d.k],ev)?ok:ng).push(d.ng(u,c[d.k],ev));});return {ok,ng,total:act.length,rate:act.length?ok.length/act.length:1};}
+function condSummary(c){const a=activeConds(c);return a.map(d=>{const o=d.opts.find(o=>o[0]===c[d.k]);return o?d.label+'：'+o[1]:'';}).filter(Boolean);}
+
+/* ================= 状態 ================= */
+const KEY='renban_demo_v3';
+const defaultState=()=>({
+  me:{handle:'yuu_live',name:'ゆう',age:'20代後半',gender:'F',area:'関東',oshi:['gh','sa'],tags:['声出し全力','物販並ぶ','打ち上げOK'],bio:'GLASS HORIZON と天野ソラさんが好きです。一緒に楽しめる方と連番したいです。',hue:20,renban:4,thanks:7,x:'yuu_live'},
+  attending:{e1:'one',e3:'two',e5:'one'},
+  sent:{},        // key -> {status:'pending'|'accepted'|'declined', at, msg}
+  incoming:[      // 起動時に届いている申請
+    {uid:9,ev:'e1',at:Date.now()-3600e3*5,status:'open',msg:'関西から遠征します。横アリ、連番お願いできませんか？物販一緒に並べると嬉しいです。'},
+    {uid:8,ev:'e3',at:Date.now()-3600e3*20,status:'open',msg:'連番初めてです。ラムネ少女隊、一緒に入っていただけると心強いです。'}
+  ],
+  matches:[],     // {key, uid, ev, at}
+  chats:{},       // key -> [{from,text,at}]
+  read:{},
+  notes:{},       // key -> {place,time,ticket,done:[]}
+  myTicket:{e1:{seat:'アリーナ',method:'digital'},e3:{seat:'整理番号A 200番台',method:'digital'},e5:{seat:'1階S席',method:'hand'}},
+  cond:{default:{},byEvent:{}},
+  onlyMatch:false,
+  search:{text:'',genre:[],kind:[],period:'all',region:[],vt:[],seek:false,give:false,sort:'date'},
+  savedSearches:[],
+  homeView:'next',
+  diary:{  // 手帳の記録
+    p3:{seat:'整理番号A 80番台',with:'みお',rating:5,cost:{ticket:8800,travel:11000,stay:0,goods:6500},memo:'新曲「Afterglow」の初披露。2番のサビで会場の照明が全部オレンジになった。物販のタオル完売。'},
+    p5:{seat:'整理番号B 120番台',with:'',rating:4,cost:{ticket:8800,travel:28000,stay:9000,goods:3000},memo:'単番。アンコールで「Blue Hour」。遠征の新幹線は早割で取ればよかった。'}
+  },
+  unlocked:{},    // 条件保存後に「新しく募集を始めた人」として現れる（デモ）
+  notif:[         // お知らせ（ベル）。新しい順
+    {at:Date.now()-3600e3*5,text:'しゅんさんから 横浜アリーナ の連番申請が届きました',ev:'e1',read:false},
+    {at:Date.now()-3600e3*20,text:'りんさんから Zepp Haneda の連番申請が届きました',ev:'e3',read:false}
+  ],
+  done:{},        // 終演した公演 ev -> {uid,rating,word,at}
+  blocked:{},     // ブロックした相手 uid -> true
+  reports:[],     // 通報（デモでは端末内に保存するだけ）
+  onboarded:false,
+  seenReq:false
+});
+let S=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.me)return Object.assign(defaultState(),s);}catch(e){}return defaultState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const U=id=>USERS.find(u=>u.id===id), E=id=>EVENTS.find(e=>e.id===id), A=id=>ARTISTS.find(a=>a.id===id);
+const key=(ev,uid)=>ev+'_'+uid;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ================= 表示ヘルパ ================= */
+const WD=['日','月','火','水','木','金','土'];
+function dparts(d){const x=new Date(d+'T00:00:00');return {m:x.getMonth()+1,d:x.getDate(),w:WD[x.getDay()],mon:x.toLocaleString('en',{month:'short'}).toUpperCase()};}
+function fmtDate(d){const p=dparts(d);return `${p.m}/${p.d}（${p.w}）`;}
+function fmtTime(t){const d=new Date(t),n=new Date();if(d.toDateString()===n.toDateString())return d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');return (d.getMonth()+1)+'/'+d.getDate();}
+function avatar(u,cls=''){const hue=u.hue;const init=esc((u.handle||u.name).slice(0,2).toUpperCase());
+  return `<div class="avatar ${cls}" style="background:linear-gradient(135deg,hsl(${hue} 80% 78%),hsl(${(hue+40)%360} 70% 62%))">${init}<i class="stick" style="color:hsl(${hue} 90% 60%);background:hsl(${hue} 90% 60%)"></i></div>`;}
+function genderLabel(g){return g==='F'?'女性':g==='M'?'男性':'回答なし';}
+const ICON={
+  pin:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>',
+  check:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></svg>',
+  shield:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+  ticket:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/></svg>',
+  users:'<svg class="ico" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 14.5a5 5 0 0 1 5.5 5.5"/></svg>',
+  search:'<svg class="ico" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>',
+  x:'<svg class="ico" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M17.5 3h3.1l-6.8 7.8L21.8 21h-6.3l-4.9-6.4L5 21H1.9l7.3-8.3L1.5 3h6.4l4.4 5.9zM16.4 19.2h1.7L6.7 4.7H4.9z"/></svg>',
+  copy:'<svg class="ico" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
+  bookmark:'<svg class="ico" viewBox="0 0 24 24"><path d="M6 4h12v17l-6-4-6 4z"/></svg>',
+  close:'<svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  sliders:'<svg class="ico" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>',
+  flag:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 21V4h12l-2 4 2 4H5"/></svg>',
+  chev:'<svg class="ico" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+  heart:'<svg class="ico" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/></svg>',
+  book:'<svg class="ico" viewBox="0 0 24 24"><path d="M5 4h14v16l-3-2-4 2-4-2-3 2z"/><path d="M9 9h6M9 13h4"/></svg>'
+};
+function peopleFor(ev){return USERS.filter(u=>u.tickets[ev]&&(!u.late||S.unlocked[ev])&&!S.blocked[u.id]);}
+function pastList(){return [...PAST,...Object.keys(S.done).map(E).filter(Boolean)];}
+function notify(text,ev){S.notif.unshift({at:Date.now(),text,ev:ev||null,read:false});if(S.notif.length>30)S.notif.length=30;save();updateBadges();}
+function isMatched(ev,uid){return S.matches.some(m=>m.key===key(ev,uid));}
+function matchStatus(ev){ // 公演に対する自分の連番状態
+  const m=S.matches.filter(x=>x.ev===ev);if(m.length)return {t:'done',label:'連番確定 · '+U(m[0].uid).name};
+  const inc=S.incoming.filter(x=>x.ev===ev&&x.status==='open').length;if(inc)return {t:'inc',label:inc+'件の申請が届いています'};
+  const sent=Object.entries(S.sent).filter(([k,v])=>k.startsWith(ev+'_')&&v.status==='pending').length;if(sent)return {t:'sent',label:'申請中'};
+  return {t:'seek',label:'相手をさがし中'};
+}
+
+/* ================= タブ ================= */
+let tab='home';
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function showTab(t){tab=t;$$('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+t));$$('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  if(t==='home')renderHome();if(t==='search')renderSearch();if(t==='req'){S.seenReq=true;save();renderReq();}if(t==='talk')renderTalk();if(t==='me')renderMe();updateBadges();}
+function updateBadges(){
+  const inc=S.incoming.filter(x=>x.status==='open').length;const br=$('#badge-req');br.hidden=!(inc&&!S.seenReq);br.textContent=inc;
+  const un=S.matches.filter(m=>!S.read[m.key]&&(S.chats[m.key]||[]).some(x=>x.from==='them')).length;const bt=$('#badge-talk');bt.hidden=!un;bt.textContent=un;
+  const nn=S.notif.filter(x=>!x.read).length;const bn=$('#badge-notif');bn.hidden=!nn;bn.textContent=nn;
+}
+
+/* ================= ホーム ================= */
+function ticketHTML(ev,cls,foot){
+  const a=A(ev.a),p=dparts(ev.date);
+  return `<div class="ticket ${cls}" data-ev="${ev.id}">
+    <div class="stub"><span class="mo">${p.mon}</span><span class="dd">${p.d}</span><span class="wd">${p.w}曜 ${ev.start}</span></div>
+    <div class="body"><div class="kind">${ev.kind} · ${a.genre}</div><div class="artist"><i style="color:hsl(${a.hue} 90% 65%);background:hsl(${a.hue} 90% 65%)"></i>${a.name}</div>
+    <div class="tour">${ev.tour}</div><div class="venue">${ICON.pin}${ev.venue} · ${ev.type}</div>
+    <div class="foot">${foot}</div></div></div>`;
+}
+function fitCount(ev){const c=condFor(ev);return peopleFor(ev).filter(u=>scoreUser(u,ev,c).ng.length===0).length;}
+const KIND_CLS={'締切':'hot','当落':'hot','一般発売':'soon','リリース':'','配信':'','TV':''};
+function daysUntil(d){return Math.round((new Date(d+'T00:00:00')-TODAY)/864e5);}
+function yen(n){return '¥'+(n||0).toLocaleString('ja-JP');}
+function starsHTML(n){return `<span class="stars">${[1,2,3,4,5].map(i=>`<svg viewBox="0 0 24 24" class="${i<=n?'':'off'}"><path d="M12 3l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.4 6.3 20.5l1.2-6.4L2.8 9.7l6.4-.8z"/></svg>`).join('')}</span>`;}
+$('#home-seg').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.homeView=b.dataset.v;save();renderHome();});
+function renderHome(){
+  $('#home-area').textContent=S.me.area;
+  $('#home-seg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.homeView));
+  if(S.homeView==='diary')return renderDiary();
+  const h=$('#home');
+  const mine=EVENTS.filter(e=>S.attending[e.id]).sort((a,b)=>a.date<b.date?-1:1);
+  let html='';
+  // カウントダウン
+  if(mine.length){const n=mine[0],a=A(n.a),d=daysUntil(n.date),st=matchStatus(n.id);
+    html+=`<div class="hero" data-ev="${n.id}"><div class="glow"></div><div class="eyebrow">Next stage</div><div class="cd"><b>${d===0?'今日':d}</b><span>${d===0?'':'日後'}</span></div><div class="what">${a.name} · ${n.venue}</div><div class="sub">${fmtDate(n.date)} 開演 ${n.start} · ${st.label}</div>
+      <div class="sticks">${[0,1,2,3,4,5,6,7].map(i=>`<i style="color:hsl(${[a.hue,45,330,200][i%4]} 90% 65%);animation-delay:${i*.2}s"></i>`).join('')}</div></div>`;}
+  // 推しの予定
+  const sch=SCHEDULE.filter(x=>S.me.oshi.includes(x.a)&&daysUntil(x.date)>=0).sort((x,y)=>x.date<y.date?-1:1);
+  const show=S.schedAll?sch:sch.slice(0,4);
+  html+=`<div class="label" style="margin-top:18px">推しの予定 <b>${sch.length}</b><span style="margin-left:auto;font-weight:400;letter-spacing:0;text-transform:none;font-family:inherit">${S.me.oshi.map(o=>A(o).name).join(' / ')}</span></div>`;
+  html+=sch.length?`<div class="sched">${show.map(x=>{const a=A(x.a),p=dparts(x.date),d=daysUntil(x.date);
+    return `<div class="it ${x.kind==='締切'&&d<=3?'urgent':''}"><div class="d"><b>${p.d}</b><span>${p.mon}</span></div><div class="t"><b>${x.title}</b><span><i style="background:hsl(${a.hue} 90% 65%)"></i>${a.name} · ${d===0?'今日':d===1?'明日':d+'日後'}</span></div><span class="k ${KIND_CLS[x.kind]||''}">${x.kind}</span></div>`;}).join('')}</div>`
+    +(sch.length>4?`<button class="btn sm ghost" id="b-sched-more" style="width:100%;margin-top:8px">${S.schedAll?'閉じる':'あと'+(sch.length-4)+'件を見る'}</button>`:''):`<div class="note">マイページで推しを登録すると、先行の締切・当落・リリースの予定がここに並びます。</div>`;
+  // 参戦予定
+  html+=`<div class="label" style="margin-top:22px">参戦予定 <b>${mine.length}</b></div>`;
+  if(!mine.length)html+=`<div class="empty">${ICON.ticket}参戦予定の公演がありません。<br>「さがす」から公演を見つけて「行く」にすると、連番相手を探せます。</div>`;
+  html+=`<div class="stack">`+mine.map(e=>{
+    const st=matchStatus(e.id);
+    const chip=st.t==='done'?`<span class="chip ok">${ICON.check}${st.label}</span>`:st.t==='inc'?`<span class="chip pink">${ICON.users}${st.label}</span>`:st.t==='sent'?`<span class="chip info">${st.label}</span>`:`<span class="chip amber">${ICON.search}${st.label} · 条件に合う ${fitCount(e.id)}人</span>`;
+    return ticketHTML(e,st.t==='done'?'done':'mine',chip+`<span class="chip">${ICON.ticket}${TICKET[S.attending[e.id]].split('（')[0]}</span>`);
+  }).join('')+'</div>';
+  // 保存した検索
+  html+=`<div class="label" style="margin-top:22px">保存した検索 <b>${S.savedSearches.length}</b></div>`;
+  html+=S.savedSearches.length?S.savedSearches.map((sv,i)=>{const n=searchEvents(sv.q).length;return `<div class="savedrow" data-i="${i}">${ICON.bookmark}<div class="t"><b>${esc(sv.name)}</b><span>${searchSummary(sv.q).join(' · ')||'すべての公演'}</span></div><span class="n">${n}</span><button class="x" data-del="${i}" title="削除">${ICON.close}</button></div>`;}).join(''):`<div class="note" style="padding:4px 4px 10px">「さがす」で条件を保存すると、ここに新着件数つきで並びます。</div>`;
+  html+=`<button class="btn ghost" id="b-go-search" style="width:100%;margin-top:6px">${ICON.search}公演をさがす</button>`;
+  h.innerHTML=html;
+  h.querySelectorAll('.ticket,.hero').forEach(t=>t.onclick=()=>openEvent(t.dataset.ev));
+  h.querySelectorAll('.savedrow').forEach(r=>r.onclick=e=>{if(e.target.closest('[data-del]')){S.savedSearches.splice(+e.target.closest('[data-del]').dataset.del,1);save();renderHome();return;}S.search=Object.assign({},S.savedSearches[+r.dataset.i].q);save();showTab('search');});
+  $('#b-go-search').onclick=()=>showTab('search');
+  const bm=$('#b-sched-more');if(bm)bm.onclick=()=>{S.schedAll=!S.schedAll;renderHome();};
+}
+
+/* ================= X連携（無料でできる範囲） ================= */
+const APP_URL='https://claude.ai/code/artifact/06138a14-6479-4fa2-9568-800ad69f0721';
+function xPostText(ev){
+  const e=E(ev),a=A(e.a),st=S.attending[ev],mt=S.myTicket[ev]||{},c=condFor(ev);
+  const SHORT={gender:{same:'同性'},verified:{yes:'本人確認済'},minor:{no:'18歳以上'},fc:{yes:'FC会員'},minCount:{3:'参戦3回〜',10:'参戦10回〜',20:'参戦20回〜'},oshi:{same:'推し一致'},goods:{yes:'物販一緒に',no:'物販なし'},voice:{loud:'声出しOK',quiet:'静かに聴く派'},after:{yes:'打ち上げ歓迎',no:'終演後は解散'},travel:{yes:'遠征組'},beginner:{exclude:'経験者',only:'初心者歓迎'},ticket:{give:'1枚譲ってくれる方',none:'チケットない方も'},method:{digital:'電子分配',hand:'手渡し'}};
+  const want=Object.keys(SHORT).map(k=>SHORT[k][c[k]]).filter(Boolean).slice(0,5).join('・');
+  const tag='#'+a.name.replace(/\s+/g,'_');
+  return `【連番募集】${fmtDate(e.date)} ${a.name} ${e.venue}\n${TICKET[st].split('（')[0]}${mt.seat?'・'+mt.seat:''}${mt.method?'・'+METHOD[mt.method]:''}\n希望：${want||'条件はアプリで'}\n\n条件で絞って探せます↓\n${APP_URL}#ev=${ev}\n#連番募集 #連番 ${tag} #レンバン`;
+}
+function openXPost(ev){
+  const text=xPostText(ev);
+  const url='https://twitter.com/intent/tweet?text='+encodeURIComponent(text);
+  $('#sh-x-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px;display:flex;align-items:center;gap:8px">${ICON.x}Xに募集を投稿</h2>
+    <p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">Xで探している人にも届けて、このアプリに呼び込みます。投稿はXの画面で確認してから送信されます。</p>
+    <div class="xpreview">${esc(text).replace(/(#[^\s]+)/g,'<span class="tag">$1</span>')}</div>
+    <div class="cta-row" style="margin-top:14px"><button class="btn line" id="x-copy">${ICON.copy}コピー</button><a class="btn" id="x-open" href="${url}" target="_blank" rel="noopener">${ICON.x}Xで投稿する</a></div>
+    <div class="note">投稿を見た人がリンクから来ると、あなたの募集ページに直接たどり着きます。</div>`;
+  $('#x-open').querySelector('.ico').style.cssText='fill:var(--amber-ink);stroke:none;width:16px;height:16px';
+  // サンドボックス内（Artifact など）ではポップアップが開けないことがある。その場合は文面をコピーして案内する
+  $('#x-open').onclick=ev=>{ev.preventDefault();let w=null;try{w=window.open(url,'_blank');}catch(e){}if(!w){navigator.clipboard?.writeText(text).catch(()=>{});toast('この環境ではXを開けません。文面をコピーしたので、Xの投稿画面に貼り付けてください');}};
+  $('#x-copy').onclick=async()=>{try{await navigator.clipboard.writeText(text);toast('コピーしました');}catch(e){toast('コピーできませんでした。長押しで選択してください');}};
+  openSheet('sh-x');
+}
+/* Xの募集文を貼り付けて構造化 */
+function parseXPost(t){
+  const r={found:[],cond:{},ticket:null,seat:'',method:'',ev:null};
+  const norm=t.replace(/\s+/g,' ');
+  // アーティスト・会場・日付から公演を推定
+  let best=null;EVENTS.forEach(e=>{const a=A(e.a);let sc=0;if(norm.includes(a.name))sc+=3;if(a.lineup&&a.lineup.some(l=>norm.includes(l.replace(' 他',''))))sc+=1;if(norm.includes(e.venue.split(' ')[0]))sc+=3;if(norm.includes(e.city))sc+=1;
+    const p=dparts(e.date);if(new RegExp(`(${p.m}/${p.d}|${p.m}月${p.d}日)`).test(norm))sc+=3;if(sc>(best?.sc||0))best={e,sc};});
+  if(best&&best.sc>=3){r.ev=best.e;r.found.push('公演：'+A(best.e.a).name+' '+best.e.venue);}
+  if(/2枚|２枚|1枚余|１枚余|譲/.test(norm)){r.ticket='two';r.found.push('2枚持ち（1枚譲れる）');}
+  else if(/1枚|１枚|単番|隣/.test(norm)){r.ticket='one';r.found.push('1枚持ち');}
+  else if(/求|探して|申込|同行|名義/.test(norm)){r.ticket='none';r.found.push('チケットなし');}
+  const seat=norm.match(/(アリーナ|スタンド|[SA]席|1階|2階|整理番号\s?[A-C]?\s?\d*番?台?)/);if(seat){r.seat=seat[1];r.found.push('席：'+seat[1]);}
+  if(/電子|分配|QR/.test(norm)){r.method='digital';r.found.push('電子分配');}else if(/手渡し|当日渡/.test(norm)){r.method='hand';r.found.push('手渡し');}
+  if(/同性|女性のみ|女性限定|男性のみ|男性限定/.test(norm)){r.cond.gender='same';r.found.push('同性のみ');}
+  if(/本人確認|身分証/.test(norm)){r.cond.verified='yes';r.found.push('本人確認済');}
+  if(/FC|ファンクラブ|会員/.test(norm)){r.cond.fc='yes';r.found.push('FC会員');}
+  if(/未成年|18歳以上|20歳以上|成人/.test(norm)){r.cond.minor='no';r.found.push('未成年除外');}
+  if(/物販|グッズ/.test(norm)){r.cond.goods=/並ば(ない|ず)|行かない/.test(norm)?'no':'yes';r.found.push(r.cond.goods==='yes'?'物販並ぶ':'物販行かない');}
+  if(/声出し|コール|盛り上が/.test(norm)){r.cond.voice='loud';r.found.push('声出し全力');}
+  else if(/静か|座って|着席/.test(norm)){r.cond.voice='quiet';r.found.push('静かに聴く');}
+  if(/打ち上げ|飲み|感想会/.test(norm)){r.cond.after='yes';r.found.push('打ち上げ');}else if(/即帰|解散/.test(norm)){r.cond.after='no';r.found.push('終演後すぐ解散');}
+  if(/遠征/.test(norm)){r.cond.travel='yes';r.found.push('遠征組');}
+  if(/初心者|初めて|初参戦/.test(norm)){r.cond.beginner='any';r.found.push('初心者OK');}
+  if(/ホテル|宿/.test(norm)){r.cond.hotel='yes';r.found.push('ホテルシェア');}
+  return r;
+}
+const xSample=()=>{const p=dparts(E('e1').date);return `【連番募集】${p.m}/${p.d} GLASS HORIZON 横浜アリーナ\n1枚余ってます（アリーナ）。電子分配。\n同性の方、本人確認できる方でお願いします。物販一緒に並べる方だと嬉しいです！\n#連番募集 #GLASS_HORIZON`;};
+function openXImport(){
+  $('#sh-x-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px;display:flex;align-items:center;gap:8px">${ICON.x}Xの募集文から取り込む</h2>
+    <p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">自分がXに書いた募集文、または見かけた募集文を貼ると、公演・チケット・条件に自動で変換します。</p>
+    <div class="field"><textarea id="xi-text" style="min-height:120px" placeholder="募集文を貼り付け"></textarea></div>
+    <button class="btn sm ghost" id="xi-sample">サンプルを入れる</button>
+    <div id="xi-result"></div>`;
+  const run=()=>{const t=$('#xi-text').value;if(!t.trim()){$('#xi-result').innerHTML='';return;}const r=parseXPost(t);
+    $('#xi-result').innerHTML=`<div class="label" style="margin:14px 4px 6px">認識した内容 <b>${r.found.length}</b></div><div class="parsed">${r.found.map((f,i)=>`<span class="${i===0&&r.ev?'ev':''}">${esc(f)}</span>`).join('')||'<span style="background:var(--sf2);color:var(--ink3)">読み取れる項目がありません</span>'}</div>
+      ${r.ev?`<div class="cta-row"><button class="btn line" id="xi-close">閉じる</button><button class="btn" id="xi-apply">この内容で参戦予定と条件を設定</button></div>`:`<div class="note">公演が特定できませんでした。アーティスト名・会場・日付（10/4 など）が入っていると認識できます。</div>`}`;
+    const ap=$('#xi-apply');if(ap)ap.onclick=()=>{const ev=r.ev.id;S.attending[ev]=r.ticket||S.attending[ev]||'none';S.myTicket[ev]=Object.assign({},S.myTicket[ev]||{},r.seat?{seat:r.seat}:{},r.method?{method:r.method}:{});
+      if(Object.keys(r.cond).length)S.cond.byEvent[ev]=Object.assign({},condFor(ev),r.cond);save();closeSheets();openEvent(ev);toast('Xの募集文から設定しました');};
+    const cl=$('#xi-close');if(cl)cl.onclick=closeSheets;};
+  $('#xi-text').oninput=run;$('#xi-sample').onclick=()=>{$('#xi-text').value=xSample();run();};
+  openSheet('sh-x');
+}
+
+/* ================= 手帳（参戦履歴） ================= */
+function renderDiary(){
+  const h=$('#home');
+  const past=pastList().sort((a,b)=>a.date<b.date?-1:1).reverse();
+  const recs=Object.values(S.diary);
+  const year=past.filter(e=>e.date.slice(0,4)===String(TODAY.getFullYear())).length;
+  const cost=recs.reduce((a,r)=>a+Object.values(r.cost||{}).reduce((x,y)=>x+(+y||0),0),0);
+  const byA={};past.forEach(e=>{byA[e.a]=(byA[e.a]||0)+1;});const top=Object.entries(byA).sort((a,b)=>b[1]-a[1])[0];
+  let html=`<div class="diary-stats"><div class="stat"><b>${year}</b><span>今年の参戦</span></div><div class="stat"><b style="font-size:20px" class="yen">${yen(cost)}</b><span>記録した費用</span></div><div class="stat"><b style="font-size:16px;line-height:1.2;padding-top:4px">${top?A(top[0]).name:'—'}</b><span>いちばん行った推し</span></div></div>
+    <div class="note" style="padding:4px 4px 10px">参戦の記録は「連番の実績」として相手にも表示されます（参戦 ${past.length}回）。</div>
+    <div class="label">参戦履歴 <b>${past.length}</b></div><div class="stack">`;
+  html+=past.map(e=>{const a=A(e.a),p=dparts(e.date),r=S.diary[e.id];
+    return `<div class="drow" data-id="${e.id}"><div class="d"><b>${p.d}</b><span>${p.mon} ${e.date.slice(0,4)}</span></div><div class="t"><b>${a.name}</b><span>${e.tour} · ${e.venue}</span>
+      ${r?`<p>${esc(r.memo||'')}</p><div class="foot">${starsHTML(r.rating||0)}${r.seat?`<span class="chip">${esc(r.seat)}</span>`:''}${r.with?`<span class="chip ok">${ICON.users}${esc(r.with)}と連番</span>`:`<span class="chip">単番</span>`}<span class="chip yen">${yen(Object.values(r.cost||{}).reduce((x,y)=>x+(+y||0),0))}</span></div>`
+        :`<div class="foot"><span class="chip amber">記録を書く</span></div>`}</div></div>`;}).join('');
+  html+='</div>';
+  h.innerHTML=html;
+  h.querySelectorAll('.drow').forEach(d=>d.onclick=()=>openDiary(d.dataset.id));
+}
+function openDiary(id){
+  const e=pastList().find(x=>x.id===id),a=A(e.a),r=S.diary[id]||{cost:{}};
+  const partners=[...new Set(S.matches.map(m=>U(m.uid).name))];
+  $('#sh-diary-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px">${a.name}</h2><p style="font-size:12.5px;color:var(--ink2);margin:2px 0 14px">${fmtDate(e.date)} · ${e.tour} · ${e.venue}</p>
+    <div class="field"><label>満足度</label><div class="starpick" id="d-stars">${[1,2,3,4,5].map(i=>`<button type="button" data-v="${i}" class="${i<=(r.rating||0)?'on':''}"><svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.4 6.3 20.5l1.2-6.4L2.8 9.7l6.4-.8z"/></svg></button>`).join('')}</div></div>
+    <div class="field-row"><div class="field"><label>席・整理番号</label><input id="d-seat" value="${esc(r.seat||'')}" placeholder="例：アリーナ B3"></div><div class="field"><label>連番相手</label><input id="d-with" value="${esc(r.with||'')}" list="d-partners" placeholder="単番なら空欄"><datalist id="d-partners">${partners.map(p=>`<option value="${esc(p)}">`).join('')}</datalist></div></div>
+    <div class="field"><label>費用（円）</label><div class="costgrid">${[['ticket','チケット'],['travel','交通'],['stay','宿'],['goods','物販']].map(([k,l])=>`<div class="field"><label style="font-size:11.5px">${l}</label><input id="d-${k}" type="number" inputmode="numeric" min="0" value="${r.cost?.[k]||''}" placeholder="0"></div>`).join('')}</div></div>
+    <div class="field"><label>セトリ・感想メモ</label><textarea id="d-memo" maxlength="400" placeholder="印象に残った曲、演出、次に活かしたいこと">${esc(r.memo||'')}</textarea></div>
+    <div class="cta-row"><button class="btn line" id="d-close">閉じる</button><button class="btn" id="d-save">保存</button></div>`;
+  const sp=$('#d-stars');sp.querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=+b.dataset.v;sp.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v<=v));sp.dataset.v=v;});sp.dataset.v=r.rating||0;
+  $('#d-close').onclick=closeSheets;
+  $('#d-save').onclick=()=>{S.diary[id]={rating:+sp.dataset.v||0,seat:$('#d-seat').value.trim(),with:$('#d-with').value.trim(),memo:$('#d-memo').value.trim(),cost:{ticket:+$('#d-ticket').value||0,travel:+$('#d-travel').value||0,stay:+$('#d-stay').value||0,goods:+$('#d-goods').value||0}};save();closeSheets();renderDiary();toast('手帳に記録しました');};
+  openSheet('sh-diary');
+}
+
+/* ================= 公演検索 ================= */
+function periodRange(p){
+  const y=TODAY.getFullYear(),m=TODAY.getMonth();const d=n=>new Date(y,m,TODAY.getDate()+n);
+  const iso=isoOf;
+  if(p==='week')return [iso(TODAY),iso(d(7))];
+  if(p==='month')return [iso(TODAY),iso(new Date(y,m+1,0))];
+  if(p==='next')return [iso(new Date(y,m+1,1)),iso(new Date(y,m+2,0))];
+  if(p==='3m')return [iso(TODAY),iso(d(92))];
+  if(/^\d{4}-\d{2}$/.test(p)){const [yy,mm]=p.split('-').map(Number);return [iso(new Date(yy,mm-1,1)),iso(new Date(yy,mm,0))];}
+  return null;
+}
+function periodLabel(p){const m=TODAY.getMonth()+1;const mm=/^\d{4}-(\d{2})$/.exec(p);return mm?(+mm[1])+'月':{all:'すべて',week:'今週',month:`今月（${m}月）`,next:`来月（${m%12+1}月）`,'3m':'3か月以内'}[p]||p;}
+const PERIODS=['all','week','month','next','3m',...[2,3].map(k=>{const d=new Date(TODAY.getFullYear(),TODAY.getMonth()+k,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})];
+function searchEvents(q){
+  const t=(q.text||'').trim().toLowerCase();const r=periodRange(q.period);
+  return EVENTS.filter(e=>{const a=A(e.a);
+    if(t&&![a.name,e.tour,e.venue,e.city,a.genre,e.kind,...(a.lineup||[])].join(' ').toLowerCase().includes(t))return false;
+    if(q.genre.length&&!q.genre.includes(a.genre))return false;
+    if(q.kind.length&&!q.kind.includes(e.kind))return false;
+    if(q.region.length&&!q.region.includes(e.region))return false;
+    if(q.vt.length&&!q.vt.includes(e.vt))return false;
+    if(r&&(e.date<r[0]||e.date>r[1]))return false;
+    if(q.seek&&!peopleFor(e.id).length)return false;
+    if(q.give&&!peopleFor(e.id).some(u=>u.tickets[e.id]==='two'))return false;
+    return e.date>=TODAY_ISO;
+  }).sort((x,y)=>q.sort==='seek'?peopleFor(y.id).length-peopleFor(x.id).length:q.sort==='fit'?fitCount(y.id)-fitCount(x.id):x.date<y.date?-1:1);
+}
+function searchSummary(q){const o=[];if(q.text)o.push('「'+q.text+'」');if(q.genre.length)o.push(q.genre.join('/'));if(q.kind.length)o.push(q.kind.join('/'));if(q.period!=='all')o.push(periodLabel(q.period));if(q.region.length)o.push(q.region.join('/'));if(q.vt.length)o.push(q.vt.join('/'));if(q.seek)o.push('募集あり');if(q.give)o.push('譲れる人あり');return o;}
+function renderSearch(){
+  const q=S.search;const res=searchEvents(q);
+  const multi=(k,list,dot)=>`<div class="opts" data-k="${k}">${list.map(v=>`<button type="button" data-v="${esc(v)}" class="${q[k].includes(v)?'on':''}">${dot?`<i style="background:hsl(${ARTISTS.find(a=>a.genre===v)?.hue||0} 90% 65%)"></i>`:''}${v}</button>`).join('')}</div>`;
+  $('#search').innerHTML=`<div class="searchbox">${ICON.search}<input id="q-text" value="${esc(q.text)}" placeholder="アーティスト・ツアー名・会場・出演者"><button id="q-clear" ${q.text?'':'hidden'}>${ICON.close}</button></div>
+    <div class="frow"><label>Genre</label>${multi('genre',GENRES,true)}</div>
+    <div class="frow"><label>Type</label>${multi('kind',KINDS)}</div>
+    <div class="frow"><label>When</label><div class="opts" data-k="period">${PERIODS.map(p=>`<button type="button" data-v="${p}" class="${q.period===p?'on':''}">${periodLabel(p)}</button>`).join('')}</div></div>
+    <div class="frow"><label>Area</label>${multi('region',REGIONS)}</div>
+    <div class="frow"><label>Venue</label>${multi('vt',VTYPES)}</div>
+    <div class="frow"><label>People</label><div class="opts"><button type="button" data-t="seek" class="${q.seek?'on':''}">${ICON.users}連番募集あり</button><button type="button" data-t="give" class="${q.give?'on':''}">${ICON.ticket}譲れる人がいる</button></div></div>
+    <div class="sres"><div class="label">${res.length}件の公演</div><div style="display:flex;gap:6px;align-items:center"><select class="sortsel" id="q-sort"><option value="date" ${q.sort==='date'?'selected':''}>日付順</option><option value="seek" ${q.sort==='seek'?'selected':''}>募集人数順</option><option value="fit" ${q.sort==='fit'?'selected':''}>条件に合う人が多い順</option></select><button class="btn sm" id="q-save">${ICON.bookmark}保存</button></div></div>
+    <div class="stack">${res.length?res.map(e=>{const n=peopleFor(e.id).length,f=fitCount(e.id);const a=A(e.a);
+      return ticketHTML(e,S.attending[e.id]?'mine':'',`${S.attending[e.id]?`<span class="chip amber">${ICON.check}参戦予定</span>`:''}<span class="chip">${ICON.users}募集 ${n}人</span>${f?`<span class="chip fit">条件に合う ${f}人</span>`:''}<span class="chip">${e.region} · ${e.vt}</span>${a.lineup?`<span class="chip">${a.lineup.slice(0,2).join(' / ')} …</span>`:''}`);}).join(''):`<div class="empty">${ICON.search}この条件の公演はありません。<br>条件をゆるめるか、検索を保存しておくと新着で追加されたときに分かります。</div>`}</div>`;
+  const root=$('#search');
+  const qt=$('#q-text');qt.oninput=()=>{q.text=qt.value;save();const pos=qt.selectionStart;renderSearch();const n=$('#q-text');n.focus();n.setSelectionRange(pos,pos);};
+  $('#q-clear').onclick=()=>{q.text='';save();renderSearch();};
+  root.querySelectorAll('.opts[data-k]').forEach(o=>o.querySelectorAll('button').forEach(b=>b.onclick=()=>{const k=o.dataset.k,v=b.dataset.v;
+    if(k==='period')q.period=v;else{const i=q[k].indexOf(v);i>=0?q[k].splice(i,1):q[k].push(v);}save();renderSearch();}));
+  root.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{q[b.dataset.t]=!q[b.dataset.t];save();renderSearch();});
+  $('#q-sort').onchange=e=>{q.sort=e.target.value;save();renderSearch();};
+  $('#q-save').onclick=async()=>{const name=await askDialog({title:'この検索に名前をつける',desc:'ホームに新着件数つきで並びます。',input:true,value:searchSummary(q).join(' · ')||'すべての公演',ok:'保存'});if(!name)return;S.savedSearches.push({name,q:JSON.parse(JSON.stringify(q))});save();toast('検索を保存しました。ホームに新着件数つきで表示されます');};
+  root.querySelectorAll('.ticket').forEach(t=>t.onclick=()=>openEvent(t.dataset.ev));
+}
+$('#b-search-clear').onclick=()=>{S.search={text:'',genre:[],kind:[],period:'all',region:[],vt:[],seek:false,give:false,sort:'date'};save();renderSearch();};
+
+/* ================= 公演ページ ================= */
+let curEv=null;
+function openEvent(id){curEv=id;renderEvent();$('#p-event').classList.add('open');}
+$('#b-ev-back').onclick=()=>{$('#p-event').classList.remove('open');showTab(tab);};
+const METHOD={hand:'当日手渡し',digital:'電子チケット分配'};
+function renderEvent(){
+  const e=E(curEv),a=A(e.a),mine=S.attending[e.id],mt=S.myTicket[e.id]||{};
+  const c=condFor(e.id);const isCustom=!!S.cond.byEvent[e.id];
+  $('#ev-count').innerHTML=`${ICON.users}連番募集 ${peopleFor(e.id).length}人`;
+  $('#ev-hero').innerHTML=`<div class="artist"><i style="color:hsl(${a.hue} 90% 65%);background:hsl(${a.hue} 90% 65%)"></i>${a.name}</div><div class="tour">${e.kind} · ${a.genre} · ${e.tour}${a.lineup?'<br>出演：'+a.lineup.join(' / '):''}</div>
+    <div class="ev-grid"><div><small>Date</small><b>${fmtDate(e.date)}</b></div><div><small>Open / Start</small><b>${e.open} / ${e.start}</b></div><div><small>Venue</small><b>${e.venue}</b></div></div>
+    <div class="mystatus">${S.done[e.id]?`<div class="txt"><b>終演済み</b>${U(S.done[e.id].uid).name}さんと連番 · ありがとう送信済み</div><button class="btn sm ghost" id="b-diary">${ICON.book}手帳を見る</button>`:mine?`<div class="txt"><b>自分の募集</b>${TICKET[mine].split('（')[0]}${mine!=='none'&&mt.seat?' · '+mt.seat:''}${mine!=='none'&&mt.method?' · '+METHOD[mt.method]:''}</div><button class="btn sm ghost" id="b-mytk">編集</button><button class="btn sm" id="b-xpost" title="Xに募集を投稿">${ICON.x}投稿</button>`
+      :`<div class="txt"><b>まだ参戦予定に入っていません</b>「行く」にすると申請できるようになります</div><button class="btn sm" id="b-go">行く</button>`}</div>
+    ${mine&&matchStatus(e.id).t==='done'&&!S.done[e.id]?`<button class="btn sm line" id="b-finish" style="width:100%;margin-top:10px">${ICON.heart}終演した → ありがとうを送って手帳に記録（デモ）</button>`:''}`;
+  if(S.done[e.id]){$('#b-diary').onclick=()=>{$('#p-event').classList.remove('open');S.homeView='diary';showTab('home');openDiary(e.id);};}
+  else if(mine){$('#b-mytk').onclick=()=>openMyTicket(e.id);$('#b-xpost').onclick=()=>openXPost(e.id);}
+  else $('#b-go').onclick=()=>{S.attending[e.id]='none';save();renderEvent();toast('参戦予定に追加しました');};
+  const bf=$('#b-finish');if(bf)bf.onclick=()=>openFinish(e.id);
+  // 条件バー
+  const sum=condSummary(c);
+  $('#ev-filters').innerHTML=`<div class="condbar"><div class="condhead"><span class="condtitle">${ICON.sliders}相手の条件 <b>${sum.length}</b>${isCustom?'<em>この公演だけ</em>':''}</span><button class="btn sm" id="b-cond">条件を変える</button></div>
+    <div class="condchips">${sum.length?sum.map(t=>`<span>${t}</span>`).join(''):'<span class="none">条件なし（全員表示）</span>'}</div>
+    <label class="condtoggle"><input type="checkbox" id="only-match" ${S.onlyMatch?'checked':''}><span>条件をすべて満たす人だけ表示</span></label></div>`;
+  $('#b-cond').onclick=()=>openCond(e.id);
+  $('#only-match').onchange=ev=>{S.onlyMatch=ev.target.checked;save();renderEvent();};
+  let ppl=peopleFor(e.id).map(u=>({u,sc:scoreUser(u,e.id,c)}));
+  const full=ppl.filter(x=>x.sc.ng.length===0).length;
+  if(S.onlyMatch)ppl=ppl.filter(x=>x.sc.ng.length===0);
+  ppl.sort((x,y)=>(y.sc.rate-x.sc.rate)||(y.u.renban-x.u.renban));
+  $('#ev-people').innerHTML=`<div class="label">条件に合う人 <b>${full}</b> / 募集中 ${peopleFor(e.id).length}人</div><div class="stack">`+(ppl.length?ppl.map(x=>personHTML(x.u,e.id,x.sc)).join(''):`<div class="empty">条件をすべて満たす人がいません。<br>条件をゆるめるか、「すべて満たす人だけ」を外すと一致率順に表示します。</div>`)+'</div>';
+  $('#ev-people').querySelectorAll('.person').forEach(p=>{
+    p.onclick=ev=>{if(ev.target.closest('button'))return;openPerson(+p.dataset.uid,e.id);};
+    const b=p.querySelector('[data-act]');if(b)b.onclick=()=>act(b.dataset.act,+p.dataset.uid,e.id);
+  });
+}
+function personHTML(u,ev,sc){
+  const k=key(ev,u.id);const m=isMatched(ev,u.id);const s=S.sent[k];const inc=S.incoming.find(x=>x.uid===u.id&&x.ev===ev&&x.status==='open');
+  const tk=u.tickets[ev];const seat=u.seats?.[ev];
+  const tkChip=tk==='two'?`<span class="chip amber">${ICON.ticket}1枚譲れる${seat?' · '+seat:''}</span>`:tk==='one'?`<span class="chip">${ICON.ticket}1枚持ち${seat?' · '+seat:''}</span>`:`<span class="chip">${ICON.ticket}チケット未確保</span>`;
+  const sameOshi=u.oshi.filter(o=>S.me.oshi.includes(o)).map(o=>A(o).name+(u.member?'（'+u.member+'推し）':''));
+  const pct=Math.round(sc.rate*100);const cls=sc.ng.length===0?'full':pct>=60?'mid':'low';
+  const score=sc.total?`<div class="score ${cls}"><b>${sc.ok.length}/${sc.total}</b><span>条件一致</span></div>`:'';
+  let cta;
+  if(m)cta=`<span class="chip ok">${ICON.check}連番確定</span><button class="btn sm ghost" data-act="chat">トーク</button>`;
+  else if(inc)cta=`<span class="chip pink">申請が届いています</span><button class="btn sm" data-act="review">確認する</button>`;
+  else if(s&&s.status==='pending')cta=`<span class="chip info">申請中 · 返事待ち</span><button class="btn sm line" data-act="cancel">取り消す</button>`;
+  else if(s&&s.status==='declined')cta=`<span class="chip warn">今回は見送り</span><span></span>`;
+  else if(!S.attending[ev])cta=`<span class="chip">参戦予定にすると申請できます</span><span></span>`;
+  else cta=`<span></span><button class="btn sm" data-act="apply">連番を申請</button>`;
+  return `<div class="person ${m?'matched':''}" data-uid="${u.id}">${avatar(u)}
+    <div class="main"><div class="h"><b>${u.name}</b><small>@${u.handle}</small>${u.verified?`<span class="vf" title="本人確認済">${ICON.shield}</span>`:''}<small>· ${u.age} · ${genderLabel(u.gender)}</small>${score}</div>
+    <div class="trust"><span>参戦 <b>${u.count}</b>回</span><span>連番 <b>${u.renban}</b>回</span><span>ありがとう <b>${u.thanks}</b></span>${u.fc?'<span>FC会員</span>':''}${u.x?`<span class="xlink" title="Xアカウント連携済">${ICON.x}${u.x.f>=1000?(u.x.f/1000).toFixed(1)+'k':u.x.f}</span>`:''}</div>
+    <div class="tags">${sameOshi.map(n=>`<span class="hit">推し一致 ${n}</span>`).join('')}${sc.ng.map(n=>`<span class="miss">${n}</span>`).join('')}${u.tags.filter(t=>!sc.ng.includes(t)).map(t=>`<span>${t}</span>`).join('')}</div>
+    <div class="bio">${u.bio}</div>
+    <div class="cta">${tkChip}<span style="flex:1"></span>${cta}</div></div></div>`;
+}
+
+/* ================= 条件設定シート ================= */
+function openCond(ev){
+  const c=condFor(ev);const isCustom=ev&&!!S.cond.byEvent[ev];const e=ev&&E(ev);
+  $('#sh-cond-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px">相手の条件</h2>
+    <p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">${e?`${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}`:'すべての公演に使う標準の条件'}。条件を満たさない人も一致率順に表示されるので、細かく決めて大丈夫です。</p>
+    ${COND_GROUPS.map(g=>`<div class="label" style="margin:14px 4px 6px">${g}</div>`+CONDS.filter(d=>d.g===g).map(d=>`<div class="condrow"><label>${d.label}</label><div class="opts" data-k="${d.k}">${d.opts.map(o=>`<button type="button" data-v="${o[0]}" class="${c[d.k]===o[0]?'on':''}">${o[1]}</button>`).join('')}</div></div>`).join('')).join('')}
+    ${ev?`<label class="condtoggle" style="margin-top:14px"><input type="checkbox" id="cond-scope" ${isCustom?'checked':''}><span>この公演だけに適用する（外すと標準の条件を更新）</span></label>`:''}
+    <div class="cta-row" style="margin-top:14px"><button class="btn line" id="cond-reset">初期値に戻す</button><button class="btn" id="cond-save">保存</button></div>`;
+  const body=$('#sh-cond-body');
+  body.querySelectorAll('.opts').forEach(o=>o.querySelectorAll('button').forEach(b=>b.onclick=()=>{o.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
+  $('#cond-reset').onclick=()=>{body.querySelectorAll('.opts').forEach(o=>{o.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.v===DEFAULT_COND[o.dataset.k]));});};
+  $('#cond-save').onclick=()=>{
+    const v={};body.querySelectorAll('.opts').forEach(o=>{v[o.dataset.k]=o.querySelector('.on').dataset.v;});
+    if(ev&&$('#cond-scope').checked)S.cond.byEvent[ev]=v;else{S.cond.default=v;if(ev)delete S.cond.byEvent[ev];}
+    save();closeSheets();if($('#p-event').classList.contains('open'))renderEvent();if(tab==='me')renderMe();toast('条件を保存しました。合う人が現れたらお知らせします');
+    // デモ：条件を保存したあと、条件に合う人が新しく募集を始める
+    const evs=ev?[ev]:Object.keys(S.attending);
+    evs.forEach(x=>{const lu=USERS.find(u=>u.late&&u.tickets[x]&&!S.unlocked[x]);if(!lu)return;
+      setTimeout(()=>{S.unlocked[x]=true;save();const sc=scoreUser(lu,x,condFor(x));const msg=`${lu.name}さんが ${A(E(x).a).name} ${E(x).venue} の連番募集を始めました（条件一致 ${sc.ok.length}/${sc.total}）`;notify(msg,x);toast(msg);
+        if($('#p-event').classList.contains('open')&&curEv===x)renderEvent();if(tab==='home')renderHome();},8000);});
+  };
+  openSheet('sh-cond');
+}
+
+/* ================= 自分のチケット（募集内容） ================= */
+function openMyTicket(ev){
+  const e=E(ev),st=S.attending[ev],mt=S.myTicket[ev]||{};
+  const seats=e.type==='指定席'?['アリーナ','スタンド','1階','2階','S席','A席','注釈付き']:['整理番号A','整理番号B','整理番号C','整理番号 未定'];
+  $('#sh-mytk-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px">自分の募集内容</h2><p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}。相手の一覧にこの内容が表示されます。</p>
+    <div class="condrow"><label>チケット</label><div class="opts" id="mt-st">${Object.entries(TICKET).map(([k,v])=>`<button type="button" data-v="${k}" class="${st===k?'on':''}">${v.split('（')[0]}</button>`).join('')}</div></div>
+    <div class="condrow"><label>席種・整理番号</label><div class="opts" id="mt-seat">${seats.map(s=>`<button type="button" data-v="${s}" class="${mt.seat===s?'on':''}">${s}</button>`).join('')}</div></div>
+    <div class="field" style="margin-top:8px"><label>席の補足（ブロック・番号など）</label><input id="mt-seatnote" value="${esc(mt.seatNote||'')}" placeholder="例：Aブロック 12列"></div>
+    <div class="condrow"><label>受け渡し方法</label><div class="opts" id="mt-method">${Object.entries(METHOD).map(([k,v])=>`<button type="button" data-v="${k}" class="${mt.method===k?'on':''}">${v}</button>`).join('')}</div></div>
+    <div class="note" style="padding:8px 0">チケットのやり取りは定価のみ。金銭の受け渡しはアプリ内では扱いません。</div>
+    <div class="cta-row"><button class="btn line" id="mt-remove">参戦予定から外す</button><button class="btn" id="mt-save">保存</button></div>`;
+  const body=$('#sh-mytk-body');
+  body.querySelectorAll('.opts').forEach(o=>o.querySelectorAll('button').forEach(b=>b.onclick=()=>{o.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');}));
+  $('#mt-save').onclick=()=>{
+    S.attending[ev]=body.querySelector('#mt-st .on').dataset.v;
+    const seat=body.querySelector('#mt-seat .on')?.dataset.v||'';const note=$('#mt-seatnote').value.trim();
+    S.myTicket[ev]={seat:seat+(note?' '+note:''),method:body.querySelector('#mt-method .on')?.dataset.v||''};
+    save();closeSheets();renderEvent();toast('募集内容を保存しました');
+  };
+  $('#mt-remove').onclick=()=>{delete S.attending[ev];delete S.myTicket[ev];save();closeSheets();renderEvent();toast('参戦予定から外しました');};
+  openSheet('sh-mytk');
+}
+function act(kind,uid,ev){
+  if(kind==='apply')openApply(uid,ev);
+  if(kind==='cancel'){delete S.sent[key(ev,uid)];save();renderEvent();toast('申請を取り消しました');}
+  if(kind==='chat')openChat(key(ev,uid));
+  if(kind==='review'){$('#p-event').classList.remove('open');showTab('req');}
+}
+
+/* ================= 人物シート ================= */
+function openPerson(uid,ev){
+  const u=U(uid);const evs=Object.keys(u.tickets).map(E);
+  $('#sh-person-body').innerHTML=`<div class="grab"></div><div class="ph">${avatar(u,'lg')}<div><h2>${u.name} ${u.verified?`<span class="vf" style="color:var(--info)">${ICON.shield}</span>`:''}</h2><p>@${u.handle} · ${u.age} · ${genderLabel(u.gender)}</p></div></div>
+    <div class="tr3"><div><b>${u.count}</b><span>参戦回数</span></div><div><b>${u.renban}</b><span>連番回数</span></div><div><b>${u.thanks}</b><span>ありがとう</span></div></div>
+    ${u.x?`<div class="xcard">${ICON.x}<div><b>Xアカウント連携済</b><span>フォロワー ${u.x.f.toLocaleString()} · 利用歴 ${u.x.y}年 · 推し関連の投稿あり</span></div></div>`:`<div class="xcard off">${ICON.x}<div><b>X未連携</b><span>連携するとアカウントの履歴が信頼の材料になります</span></div></div>`}
+    <div class="kv"><div><small>推し</small><div class="tags">${u.oshi.map(o=>`<span>${A(o).name}</span>`).join('')}</div></div>
+    <div><small>スタイル</small><div class="tags">${u.tags.map(t=>`<span>${t}</span>`).join('')}${u.fc?'<span>FC会員</span>':''}<span>${METHOD[u.method]}</span>${u.hotel?'<span>ホテルシェア希望</span>':''}${u.car?'<span>車あり</span>':''}</div></div>
+    <div><small>自己紹介</small><div>${u.bio}</div></div>
+    <div><small>参戦予定</small><div class="tags">${evs.map(e=>`<span>${fmtDate(e.date)} ${A(e.a).name} ${e.venue} · ${TICKET[u.tickets[e.id]].split('（')[0]}${u.seats?.[e.id]?' · '+u.seats[e.id]:''}</span>`).join('')}</div></div></div>
+    <div class="cta-row" id="sh-person-cta"></div>
+    <button class="btn sm line" id="shp-report" style="width:100%;margin-top:10px;color:var(--ink3)">${ICON.flag}通報・ブロック</button>`;
+  $('#shp-report').onclick=()=>openReport(uid,ev);
+  const cta=$('#sh-person-cta');
+  if(ev&&isMatched(ev,uid)){cta.innerHTML=`<button class="btn" id="shp-chat">トークを開く</button>`;$('#shp-chat').onclick=()=>{closeSheets();openChat(key(ev,uid));};}
+  else if(ev&&S.attending[ev]&&!S.sent[key(ev,uid)]&&!S.incoming.find(x=>x.uid===uid&&x.ev===ev&&x.status==='open')){cta.innerHTML=`<button class="btn line" id="shp-close">閉じる</button><button class="btn" id="shp-apply">連番を申請</button>`;$('#shp-apply').onclick=()=>{closeSheets();openApply(uid,ev);};$('#shp-close').onclick=closeSheets;}
+  else{cta.innerHTML=`<button class="btn ghost" id="shp-close">閉じる</button>`;$('#shp-close').onclick=closeSheets;}
+  openSheet('sh-person');
+}
+function closeSheets(){$$('.sheet').forEach(s=>s.classList.remove('open'));}
+function openSheet(id){const p=$('#'+id+' .panel');if(!p.querySelector('.sheetx')){const b=document.createElement('button');b.className='sheetx';b.title='閉じる';b.innerHTML=ICON.close;b.onclick=closeSheets;p.appendChild(b);}$('#'+id).classList.add('open');}
+$$('.sheet').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)closeSheets();}));
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if($$('.sheet.open').length)closeSheets();else if($('#match').classList.contains('open'))$('#match').classList.remove('open');});
+
+/* ================= 確認・入力ダイアログ（prompt / confirm はサンドボックス内で動かないため） ================= */
+function askDialog({title,desc='',input=false,value='',ok='OK',danger=false}){return new Promise(res=>{
+  $('#sh-dialog-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px">${esc(title)}</h2>${desc?`<p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">${esc(desc)}</p>`:''}
+    ${input?`<div class="field" style="margin-top:8px"><input id="dlg-input" value="${esc(value)}" maxlength="40"></div>`:''}
+    <div class="cta-row" style="margin-top:10px"><button class="btn line" id="dlg-cancel">やめる</button><button class="btn ${danger?'danger solid':''}" id="dlg-ok">${esc(ok)}</button></div>`;
+  $('#dlg-ok').onclick=()=>{const v=input?$('#dlg-input').value.trim():true;closeSheets();res(v||null);};
+  $('#dlg-cancel').onclick=()=>{closeSheets();res(null);};
+  openSheet('sh-dialog');if(input){const i=$('#dlg-input');i.focus();i.select();i.onkeydown=e=>{if(e.key==='Enter'||e.keyCode===13){e.preventDefault();$('#dlg-ok').click();}};}
+});}
+
+/* ================= お知らせ ================= */
+function openNotif(){const list=S.notif;
+  $('#sh-notif-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px">お知らせ</h2>`+(list.length?`<div class="stack" style="margin-top:12px">${list.map((x,i)=>{const e=x.ev&&E(x.ev);
+    return `<div class="nrow ${x.read?'':'new'}" data-i="${i}"><i></i><div class="t"><b>${esc(x.text)}</b><span>${fmtTime(x.at)}${e?' · '+fmtDate(e.date)+' '+e.venue:''}</span></div>${e?ICON.chev:''}</div>`;}).join('')}</div>`:`<div class="empty">お知らせはまだありません</div>`);
+  $('#sh-notif-body').querySelectorAll('.nrow').forEach(r=>r.onclick=()=>{const x=S.notif[+r.dataset.i];if(x.ev){closeSheets();openEvent(x.ev);}});
+  list.forEach(x=>x.read=true);save();updateBadges();openSheet('sh-notif');}
+$('#b-notif').onclick=openNotif;
+
+/* ================= 通報・ブロック ================= */
+const REPORT_REASONS=['転売・高額譲渡の勧誘','なりすまし・虚偽のプロフィール','不快なメッセージ・迷惑行為','ドタキャン・無断キャンセル','その他'];
+function openReport(uid,ev){const u=U(uid);
+  $('#sh-report-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px;display:flex;align-items:center;gap:8px">${ICON.flag}${u.name}さんを通報・ブロック</h2>
+    <p style="font-size:12.5px;color:var(--ink2);margin:4px 0 12px">通報は運営だけが確認します。相手には伝わりません。</p>
+    <div class="condrow"><label>理由</label><div class="opts" id="rp-reason">${REPORT_REASONS.map((r,i)=>`<button type="button" data-v="${i}" class="${i===0?'on':''}">${r}</button>`).join('')}</div></div>
+    <div class="field" style="margin-top:10px"><label>詳細（任意）</label><textarea id="rp-text" maxlength="300" placeholder="いつ・どこで・何があったか"></textarea></div>
+    <label class="check"><input type="checkbox" id="rp-block" checked><span>この人をブロックする（お互いに表示されなくなります）</span></label>
+    <div class="cta-row" style="margin-top:12px"><button class="btn line" id="rp-cancel">やめる</button><button class="btn danger solid" id="rp-send">送信する</button></div>`;
+  const body=$('#sh-report-body');
+  body.querySelectorAll('#rp-reason button').forEach(b=>b.onclick=()=>{body.querySelectorAll('#rp-reason button').forEach(x=>x.classList.remove('on'));b.classList.add('on');});
+  $('#rp-cancel').onclick=closeSheets;
+  $('#rp-send').onclick=()=>{const reason=REPORT_REASONS[+body.querySelector('#rp-reason .on').dataset.v];const block=$('#rp-block').checked;
+    S.reports.push({uid,ev:ev||null,reason,text:$('#rp-text').value.trim(),at:Date.now()});
+    if(block){S.blocked[uid]=true;S.incoming.forEach(x=>{if(x.uid===uid&&x.status==='open')x.status='declined';});Object.keys(S.sent).forEach(k=>{if(k.split('_')[1]===String(uid))delete S.sent[k];});}
+    save();closeSheets();if($('#p-event').classList.contains('open'))renderEvent();if(tab==='req')renderReq();if(tab==='home')renderHome();updateBadges();
+    toast(block?'通報を受け付け、ブロックしました（デモ）':'通報を受け付けました（デモ）');};
+  openSheet('sh-report');}
+
+/* ================= 終演後：ありがとう → 手帳 ================= */
+function openFinish(ev){const m=S.matches.find(x=>x.ev===ev);if(!m)return;const u=U(m.uid),e=E(ev),mt=S.myTicket[ev]||{};
+  $('#sh-finish-body').innerHTML=`<div class="grab"></div><div class="ph">${avatar(u)}<div><h2>お疲れさまでした</h2><p>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</p></div></div>
+    <div class="note" style="padding:12px 0 6px">${u.name}さんに「ありがとう」を送ります。ありがとうの数は相手の信頼スコアになり、この公演はあなたの手帳（参戦履歴）に残ります。</div>
+    <div class="field"><label>連番はどうでしたか</label><div class="starpick" id="f-stars">${[1,2,3,4,5].map(i=>`<button type="button" data-v="${i}" class="on"><svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.4 6.3 20.5l1.2-6.4L2.8 9.7l6.4-.8z"/></svg></button>`).join('')}</div></div>
+    <div class="field"><label>ひとこと（任意・相手に届きます）</label><input id="f-word" maxlength="60" placeholder="例：物販の案内が助かりました"></div>
+    <div class="cta-row"><button class="btn line" id="f-cancel">あとで</button><button class="btn" id="f-send">${ICON.heart}ありがとうを送る</button></div>`;
+  const sp=$('#f-stars');sp.dataset.v=5;sp.querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=+b.dataset.v;sp.querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.v<=v));sp.dataset.v=v;});
+  $('#f-cancel').onclick=closeSheets;
+  $('#f-send').onclick=()=>{const rating=+sp.dataset.v||5;
+    S.done[ev]={uid:u.id,rating,word:$('#f-word').value.trim(),at:Date.now()};
+    S.diary[ev]={seat:mt.seat||'',with:u.name,rating,cost:{ticket:0,travel:0,stay:0,goods:0},memo:''};
+    delete S.attending[ev];delete S.myTicket[ev];delete S.cond.byEvent[ev];save();closeSheets();
+    $('#p-event').classList.remove('open');S.homeView='diary';showTab('home');toast('ありがとうを送りました。手帳に記録が残りました');
+    setTimeout(()=>openDiary(ev),700);
+    // デモ：相手からもありがとうが返ってくる
+    setTimeout(()=>{S.me.thanks++;pushThem(m.key,'今日はありがとうございました！また連番しましょう');notify(`${u.name}さんから「ありがとう」が届きました（ありがとう ${S.me.thanks}）`,null);toast(`${u.name}さんからありがとうが届きました`);if(tab==='me')renderMe();},6000);};
+  openSheet('sh-finish');}
+
+/* ================= はじめての案内 ================= */
+const INTRO=[
+ {icon:'ticket',title:'公演を選ぶところから',text:'スワイプで人を選ぶアプリではありません。まず「さがす」で行く公演を見つけて「行く」にすると、その公演に行く人だけが並びます。'},
+ {icon:'sliders',title:'18項目の条件で絞って申請',text:'性別・本人確認・物販・声出しなどの条件で相手を絞り、申請を送ります。条件に合わない人も一致率順に見えるので、取りこぼしません。'},
+ {icon:'users',title:'当日メモで段取り、終演後はありがとう',text:'成立したらトークと当日メモで集合場所を決めます。終演後は「ありがとう」を送り合い、手帳に参戦の記録が残ります。'}
+];
+let introI=0;
+function renderIntro(){const s=INTRO[introI],last=introI===INTRO.length-1;
+  $('#intro-card').innerHTML=`<div class="big">${ICON[s.icon]}</div><div class="eyebrow">Step ${introI+1} / ${INTRO.length}</div><h2>${s.title}</h2><p>${s.text}</p><div class="dots">${INTRO.map((_,i)=>`<i class="${i===introI?'on':''}"></i>`).join('')}</div><button class="btn" id="intro-next">${last?'はじめる':'次へ'}</button>${last?'':'<button class="skip" id="intro-skip">スキップ</button>'}`;
+  $('#intro-next').onclick=()=>{if(introI<INTRO.length-1){introI++;renderIntro();}else closeIntro();};const sk=$('#intro-skip');if(sk)sk.onclick=closeIntro;}
+function openIntro(){introI=0;renderIntro();const l=$('#intro-lights');l.innerHTML='';for(let i=0;i<22;i++){const p=document.createElement('i');p.style.left=(i/22*100+2)+'%';p.style.color=`hsl(${[200,45,330,275][i%4]} 90% 65%)`;p.style.animationDelay=(i*.13)+'s';l.appendChild(p);}$('#intro').classList.add('open');}
+function closeIntro(){$('#intro').classList.remove('open');S.onboarded=true;save();}
+
+/* ================= 申請 ================= */
+const APPLY_TPL=['はじめまして。この公演、連番お願いできませんか？','推しが同じなので、一緒に楽しめたら嬉しいです。','物販も一緒に並べる方を探しています。','連番は初めてですが、よろしくお願いします。'];
+function openApply(uid,ev){
+  const u=U(uid),e=E(ev);
+  $('#sh-apply-body').innerHTML=`<div class="grab"></div><div class="ph">${avatar(u)}<div><h2>${u.name}さんに連番を申請</h2><p>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</p></div></div>
+    <div class="note" style="padding:12px 0">あなたのプロフィール（推し・参戦回数・スタイル）と一緒に送られます。相手が承諾すると連番成立です。</div>
+    <div class="field"><label>メッセージ</label><textarea id="ap-msg">${APPLY_TPL[0]}</textarea></div>
+    <div class="tagpick" id="ap-tpl">${APPLY_TPL.map(t=>`<button type="button">${t}</button>`).join('')}</div>
+    <div class="cta-row" style="margin-top:16px"><button class="btn line" id="ap-cancel">やめる</button><button class="btn" id="ap-send">申請を送る</button></div>`;
+  $('#ap-tpl').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#ap-msg').value=b.textContent;});
+  $('#ap-cancel').onclick=closeSheets;
+  $('#ap-send').onclick=()=>{
+    const msg=$('#ap-msg').value.trim()||APPLY_TPL[0];
+    S.sent[key(ev,uid)]={status:'pending',at:Date.now(),msg};save();closeSheets();
+    if($('#p-event').classList.contains('open'))renderEvent();if(tab==='req')renderReq();
+    toast(u.name+'さんに申請を送りました');
+    // 相手の返事（デモ：数秒後）
+    setTimeout(()=>respond(uid,ev),3500+Math.random()*3000);
+  };
+}
+function respond(uid,ev){
+  const k=key(ev,uid),s=S.sent[k];if(!s||s.status!=='pending')return;
+  const u=U(uid);
+  if(u.friendly){s.status='accepted';save();createMatch(uid,ev,'sent');}
+  else{s.status='declined';save();notify(`${u.name}さんは ${E(ev).venue} の連番を今回は見送りました`,ev);toast(u.name+'さんは今回見送りとのことです');if($('#p-event').classList.contains('open'))renderEvent();if(tab==='req')renderReq();}
+}
+function renderReq(){
+  const inc=S.incoming.filter(x=>x.status==='open').sort((a,b)=>b.at-a.at);
+  const sent=Object.entries(S.sent).sort((a,b)=>b[1].at-a[1].at);
+  let html=`<div class="label">届いた申請 <b>${inc.length}</b></div><div class="stack">`;
+  html+=inc.length?inc.map(r=>{const u=U(r.uid),e=E(r.ev);return `<div class="req" data-uid="${u.id}" data-ev="${e.id}"><div class="who">${avatar(u)}<div class="t"><b>${u.name} <small style="color:var(--ink2);font-weight:400">@${u.handle} · ${u.age} · ${genderLabel(u.gender)}</small></b><span>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</span></div><time style="font-size:11px;color:var(--ink3)">${fmtTime(r.at)}</time></div>
+      <div class="trust" style="display:flex;gap:10px;font-size:12px;color:var(--ink2)"><span>参戦 <b>${u.count}</b>回</span><span>連番 <b>${u.renban}</b>回</span><span>ありがとう <b>${u.thanks}</b></span>${u.verified?`<span style="color:var(--info)">本人確認済</span>`:''}</div>
+      <div class="msg">${esc(r.msg)}</div>
+      <div class="acts"><button class="btn line" data-a="decline">見送る</button><button class="btn" data-a="accept">承諾して連番にする</button></div></div>`;}).join(''):`<div class="empty">新しい申請はありません</div>`;
+  html+=`</div><div class="label" style="margin-top:22px">送った申請 <b>${sent.length}</b></div><div class="stack">`;
+  html+=sent.length?sent.map(([k,s])=>{const [ev,uid]=k.split('_');const u=U(+uid),e=E(ev);
+    const st=s.status==='accepted'?`<span class="chip ok">${ICON.check}承諾 · 連番確定</span>`:s.status==='declined'?`<span class="chip warn">見送り</span>`:`<span class="chip info">返事待ち</span>`;
+    return `<div class="req ${s.status==='pending'?'pending':''}" data-uid="${u.id}" data-ev="${e.id}"><div class="who">${avatar(u)}<div class="t"><b>${u.name}</b><span>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}</span></div>${st}</div>
+      ${s.status==='accepted'?`<div class="acts"><button class="btn ghost" data-a="chat">トークを開く</button></div>`:s.status==='pending'?`<div class="acts"><button class="btn line" data-a="cancel">取り消す</button></div>`:''}</div>`;}).join(''):`<div class="empty">まだ申請を送っていません</div>`;
+  html+='</div>';
+  $('#req').innerHTML=html;
+  $('#req').querySelectorAll('.req').forEach(r=>{
+    const uid=+r.dataset.uid,ev=r.dataset.ev;
+    r.querySelector('.who').onclick=()=>openPerson(uid,ev);
+    r.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
+      const a=b.dataset.a;
+      if(a==='accept'){const it=S.incoming.find(x=>x.uid===uid&&x.ev===ev);it.status='accepted';save();createMatch(uid,ev,'incoming');}
+      if(a==='decline'){const it=S.incoming.find(x=>x.uid===uid&&x.ev===ev);it.status='declined';save();renderReq();updateBadges();toast('見送りました');}
+      if(a==='cancel'){delete S.sent[key(ev,uid)];save();renderReq();toast('取り消しました');}
+      if(a==='chat')openChat(key(ev,uid));
+    });
+  });
+}
+
+/* ================= 連番成立 ================= */
+let matchKey=null;
+function createMatch(uid,ev,how){
+  const k=key(ev,uid);if(S.matches.some(m=>m.key===k))return;
+  const u=U(uid),e=E(ev);
+  S.matches.push({key:k,uid,ev,at:Date.now()});S.chats[k]=S.chats[k]||[];
+  if(S.attending[ev]==='none'&&u.tickets[ev]==='two')S.attending[ev]='one'; // 相手から1枚もらえる想定
+  save();matchKey=k;notify(`${u.name}さんと ${fmtDate(e.date)} ${A(e.a).name} の連番が成立しました`,ev);
+  $('#m-me').outerHTML=avatar(S.me).replace('class="avatar','id="m-me" class="avatar');
+  $('#m-them').outerHTML=avatar(u).replace('class="avatar','id="m-them" class="avatar');
+  $('#m-sub').innerHTML=`<b>${fmtDate(e.date)} ${A(e.a).name}</b><br>${e.venue}<br>${u.name}さんと連番が決まりました`;
+  const l=$('#lights');l.innerHTML='';for(let i=0;i<22;i++){const p=document.createElement('i');p.style.left=(i/22*100+2)+'%';p.style.color=`hsl(${[A(e.a).hue,45,330,200][i%4]} 90% 65%)`;p.style.animationDelay=(i*.13)+'s';l.appendChild(p);}
+  $('#match').classList.add('open');
+  const opener=how==='incoming'?`承諾ありがとうございます！${e.venue}、よろしくお願いします。当日の待ち合わせはどうしますか？`:u.opener;
+  setTimeout(()=>pushThem(k,opener),4500+Math.random()*2500);
+  if($('#p-event').classList.contains('open'))renderEvent();if(tab==='req')renderReq();if(tab==='home')renderHome();updateBadges();
+}
+$('#b-match-close').onclick=()=>$('#match').classList.remove('open');
+$('#b-match-chat').onclick=()=>{$('#match').classList.remove('open');openChat(matchKey);};
+
+/* ================= トーク ================= */
+function renderTalk(){
+  const t=$('#talk');
+  if(!S.matches.length){t.innerHTML=`<div class="empty">${ICON.users}まだ連番が成立していません。<br>「現場」から公演を選んで申請するか、<br>「申請」タブで届いた申請を承諾しましょう。</div>`;return;}
+  const sorted=[...S.matches].sort((a,b)=>{const la=S.chats[a.key]?.slice(-1)[0]?.at||a.at,lb=S.chats[b.key]?.slice(-1)[0]?.at||b.at;return lb-la;});
+  t.innerHTML=`<div class="label">連番相手 <b>${sorted.length}</b></div>`+sorted.map(m=>{
+    const u=U(m.uid),e=E(m.ev),c=S.chats[m.key]||[],last=c.slice(-1)[0];const unread=!S.read[m.key]&&c.some(x=>x.from==='them');
+    const preview=last?(last.from==='me'?'あなた: ':'')+last.text:'連番成立。当日の相談をしましょう';
+    return `<div class="row" data-k="${m.key}">${avatar(u)}<div class="txt"><em>${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}${S.done[m.ev]?' · 終演':''}</em><b>${u.name}</b><span class="${unread?'unread':''}">${esc(preview)}</span></div><div style="text-align:right"><time>${fmtTime(last?last.at:m.at)}</time>${unread?`<div class="n">${c.filter(x=>x.from==='them').length}</div>`:''}</div></div>`;
+  }).join('');
+  t.querySelectorAll('.row').forEach(r=>r.onclick=()=>openChat(r.dataset.k));
+}
+let chatKey=null,typingTimer=null;
+const QUICK=['当日の待ち合わせ、どこにしますか？','物販は並びますか？','開場30分前に集合でどうでしょう','チケットの受け渡しは当日でお願いします','終演後、少し感想会しませんか？'];
+function openChat(k){
+  chatKey=k;const m=S.matches.find(x=>x.key===k);if(!m)return;const u=U(m.uid),e=E(m.ev);
+  $('#chat-avatar').outerHTML=avatar(u,'sm').replace('class="avatar','id="chat-avatar" class="avatar');
+  $('#chat-name').textContent=u.name;$('#chat-ev').textContent=`${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}`;
+  $('#quick').innerHTML=QUICK.map(q=>`<button type="button">${q}</button>`).join('');
+  $('#quick').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#msg-input').value=b.textContent;$('#msg-input').focus();});
+  S.read[k]=true;save();renderNoteBar();renderChat();$('#p-chat').classList.add('open');updateBadges();
+}
+$('#b-chat-back').onclick=()=>{$('#p-chat').classList.remove('open');chatKey=null;if(tab==='talk')renderTalk();updateBadges();};
+$('#b-chat-profile').onclick=()=>{const m=S.matches.find(x=>x.key===chatKey);openPerson(m.uid,m.ev);};
+function renderChat(){
+  const box=$('#msgs');const m=S.matches.find(x=>x.key===chatKey);const u=U(m.uid),c=S.chats[chatKey]||[];
+  box.innerHTML=`<div class="sys">${fmtTime(m.at)} に ${u.name}さんと連番が成立しました<br>連絡先の交換は成立後に。チケットの売買はアプリ外で行わないでください</div>`+c.map(x=>`<div class="bubble ${x.from}">${esc(x.text)}<time>${fmtTime(x.at)}</time></div>`).join('');
+  box.scrollTop=box.scrollHeight;
+}
+$('#composer').addEventListener('submit',e=>{
+  e.preventDefault();const inp=$('#msg-input');const t=inp.value.trim();if(!t||!chatKey)return;
+  (S.chats[chatKey]=S.chats[chatKey]||[]).push({from:'me',text:t,at:Date.now()});inp.value='';save();renderChat();scheduleReply(chatKey);
+});
+function scheduleReply(k){
+  const m=S.matches.find(x=>x.key===k);const u=U(m.uid);const mine=(S.chats[k]||[]).filter(x=>x.from==='me').length;
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>{
+    if(chatKey===k){const t=document.createElement('div');t.className='typing';t.id='typing';t.innerHTML='<i></i><i></i><i></i>';$('#msgs').appendChild(t);$('#msgs').scrollTop=$('#msgs').scrollHeight;}
+    setTimeout(()=>{$('#typing')?.remove();pushThem(k,u.replies[(mine-1)%u.replies.length]);},1200+Math.random()*1500);
+  },700+Math.random()*800);
+}
+function pushThem(k,text){
+  if(!S.matches.some(x=>x.key===k))return;
+  (S.chats[k]=S.chats[k]||[]).push({from:'them',text,at:Date.now()});
+  if(chatKey===k){S.read[k]=true;renderChat();}else S.read[k]=false;
+  save();updateBadges();if(tab==='talk'&&chatKey!==k)renderTalk();
+}
+
+/* ================= 当日メモ ================= */
+const CHECKS=['集合場所と時間を決めた','チケットの受け渡し方法を決めた','連絡手段（当日つながる方法）を交換した','物販に並ぶかどうか決めた','終演後の予定を決めた'];
+function renderNoteBar(){
+  const n=S.notes[chatKey]||{};const done=(n.done||[]).length;
+  $('#note-sum').textContent=n.place||n.time?`${n.time||''} ${n.place||''}`.trim()+` · ${done}/${CHECKS.length} 済`:`集合場所・時間を決めましょう · ${done}/${CHECKS.length} 済`;
+}
+$('#notebar').onclick=()=>{
+  const m=S.matches.find(x=>x.key===chatKey);const e=E(m.ev),u=U(m.uid);const n=S.notes[chatKey]||{done:[]};
+  $('#sh-note-body').innerHTML=`<div class="grab"></div><h2 style="font-size:18px">当日メモ</h2><p style="font-size:12.5px;color:var(--ink2);margin:4px 0 14px">${fmtDate(e.date)} ${A(e.a).name} · ${e.venue}（開場 ${e.open} / 開演 ${e.start}）· ${u.name}さんと</p>
+    <div class="field-row"><div class="field"><label>集合時間</label><input id="n-time" value="${esc(n.time||'')}" placeholder="例：${e.open}の30分前"></div><div class="field"><label>集合場所</label><input id="n-place" value="${esc(n.place||'')}" placeholder="例：新横浜駅 北口改札"></div></div>
+    <div class="field"><label>チケットの受け渡し</label><select id="n-ticket"><option value="">未定</option><option ${n.ticket==='me'?'selected':''} value="me">自分が2枚持っていて渡す</option><option ${n.ticket==='them'?'selected':''} value="them">相手から1枚受け取る</option><option ${n.ticket==='each'?'selected':''} value="each">それぞれ1枚ずつ持っている</option></select></div>
+    <div class="label" style="margin:6px 4px 8px">チェックリスト</div>
+    ${CHECKS.map((c,i)=>`<label class="check ${n.done?.includes(i)?'on':''}"><input type="checkbox" data-i="${i}" ${n.done?.includes(i)?'checked':''}><span>${c}</span></label>`).join('')}
+    <div class="cta-row" style="margin-top:14px"><button class="btn line" id="n-close">閉じる</button><button class="btn" id="n-save">保存</button></div>`;
+  $('#sh-note-body').querySelectorAll('input[type=checkbox]').forEach(cb=>cb.onchange=()=>cb.closest('.check').classList.toggle('on',cb.checked));
+  $('#n-close').onclick=closeSheets;
+  $('#n-save').onclick=()=>{S.notes[chatKey]={time:$('#n-time').value.trim(),place:$('#n-place').value.trim(),ticket:$('#n-ticket').value,done:[...$('#sh-note-body').querySelectorAll('input[type=checkbox]:checked')].map(c=>+c.dataset.i)};save();closeSheets();renderNoteBar();toast('当日メモを保存しました');};
+  openSheet('sh-note');
+};
+
+/* ================= マイページ ================= */
+function renderMe(){
+  const m=S.me;const sg=condFor(null).gender==='same';
+  $('#me').innerHTML=`<div class="me-card">${avatar(m,'lg')}<div><h2>${esc(m.name)}</h2><p>@${esc(m.handle)} · ${m.age} · ${genderLabel(m.gender)} · ${m.area}</p></div></div>
+    <div class="stats"><div class="stat"><b>${pastList().length}</b><span>参戦回数</span></div><div class="stat"><b>${m.renban+S.matches.length}</b><span>連番回数</span></div><div class="stat"><b>${m.thanks}</b><span>ありがとう</span></div></div>
+    <div class="label" style="margin-top:20px">X（Twitter）連携</div>
+    <div class="xcard ${m.x?'':'off'}">${ICON.x}<div><b>${m.x?'@'+esc(m.x)+' を連携済':'未連携'}</b><span>${m.x?'募集の投稿とアカウント履歴の表示に使います':'連携すると募集をXにも出せて、アカウント履歴が信頼の材料になります'}</span></div></div>
+    <div class="field-row" style="margin-bottom:6px"><div class="field"><label>Xのユーザー名</label><input id="f-x" value="${esc(m.x||'')}" placeholder="@なしで入力"></div><div class="field"><label>&nbsp;</label><button class="btn ghost" id="b-ximport" style="width:100%">${ICON.x}募集文から取り込む</button></div></div>
+    <div class="note" style="padding:0 4px 8px">本番では「Xでログイン」で連携します。デモでは入力したユーザー名を表示に使うだけで、通信はしません。</div>
+    <div class="label" style="margin-top:20px">相手の標準条件</div>
+    <div class="condbar" style="margin:0"><div class="condchips">${condSummary(condFor(null)).map(t=>`<span>${t}</span>`).join('')||'<span class="none">条件なし</span>'}</div><button class="btn sm ghost" id="b-cond-def" style="align-self:flex-start">標準の条件を変える</button></div>
+    <div class="note" style="padding:8px 4px 0">公演ごとに条件を変えることもできます（公演ページの「条件を変える」）。</div>
+    <div class="label" style="margin-top:20px">安心設定</div>
+    <div class="toggle ${sg?'on':''}" id="t-sg"><div class="t"><b>同性のみ表示</b><span>${m.gender==='N'?'性別を「回答しない」にしている間は絞り込みません':'標準の条件「性別」を同性のみにします'}</span></div><span class="sw"></span></div>
+    <div class="label" style="margin-top:20px">プロフィール</div>
+    <div class="field-row"><div class="field"><label>表示名</label><input id="f-name" value="${esc(m.name)}" maxlength="10"></div><div class="field"><label>ハンドル</label><input id="f-handle" value="${esc(m.handle)}" maxlength="16"></div></div>
+    <div class="field-row"><div class="field"><label>年代</label><select id="f-age">${['10代後半','20代前半','20代後半','30代前半','30代後半','40代','50代以上'].map(a=>`<option ${m.age===a?'selected':''}>${a}</option>`).join('')}</select></div>
+    <div class="field"><label>性別</label><select id="f-gender"><option value="F" ${m.gender==='F'?'selected':''}>女性</option><option value="M" ${m.gender==='M'?'selected':''}>男性</option><option value="N" ${m.gender==='N'?'selected':''}>回答しない</option></select></div></div>
+    <div class="field"><label>推し（複数可）</label><div class="tagpick" id="f-oshi">${ARTISTS.map(a=>`<button type="button" data-id="${a.id}" class="${m.oshi.includes(a.id)?'on':''}">${a.name}</button>`).join('')}</div></div>
+    <div class="field"><label>現場スタイル（最大4つ）</label><div class="tagpick" id="f-tags">${STYLE_TAGS.map(t=>`<button type="button" class="${m.tags.includes(t)?'on':''}">${t}</button>`).join('')}</div></div>
+    <div class="field"><label>自己紹介</label><textarea id="f-bio" maxlength="200">${esc(m.bio)}</textarea></div>
+    <button class="btn" id="b-save" style="width:100%">保存する</button>
+    <div class="label" style="margin-top:22px">このデモについて</div>
+    <div class="note">ライブの「連番相手」を探すためのアプリのデモ版です。アーティスト・公演・ユーザーはすべて架空です。データはこの端末の中だけに保存され、外部には送信されません。</div>
+    <div class="cta-row"><button class="btn ghost" id="b-intro">使い方をもう一度見る</button><button class="btn danger" id="b-reset">デモをリセットする</button></div>`;
+  $('#t-sg').onclick=()=>{S.cond.default=Object.assign({},S.cond.default,{gender:sg?'any':'same'});save();renderMe();toast(sg?'同性のみ表示を解除しました':'同性のみ表示にしました');};
+  $('#b-intro').onclick=openIntro;
+  $('#b-cond-def').onclick=()=>openCond(null);
+  $('#b-ximport').onclick=openXImport;
+  $('#f-oshi').querySelectorAll('button').forEach(b=>b.onclick=()=>b.classList.toggle('on'));
+  $('#f-tags').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(!b.classList.contains('on')&&$('#f-tags').querySelectorAll('.on').length>=4){toast('選べるのは4つまでです');return;}b.classList.toggle('on');});
+  $('#b-save').onclick=()=>{m.name=$('#f-name').value.trim()||m.name;m.handle=$('#f-handle').value.trim()||m.handle;m.age=$('#f-age').value;m.gender=$('#f-gender').value;
+    m.x=$('#f-x').value.trim().replace(/^@/,'');m.oshi=[...$('#f-oshi').querySelectorAll('.on')].map(b=>b.dataset.id);m.tags=[...$('#f-tags').querySelectorAll('.on')].map(b=>b.textContent);m.bio=$('#f-bio').value.trim();save();renderMe();toast('保存しました');};
+  $('#b-reset').onclick=async()=>{if(await askDialog({title:'デモをリセット',desc:'申請・連番・トーク・手帳の記録をすべて消して、最初の状態に戻します。',ok:'リセットする',danger:true})){S=defaultState();S.onboarded=true;save();showTab('home');toast('リセットしました');}};
+}
+$('#b-theme').onclick=()=>{
+  const r=document.documentElement;const cur=r.getAttribute('data-theme');const sysLight=matchMedia('(prefers-color-scheme: light)').matches;
+  const isLight=cur==='light'||(!cur&&sysLight);r.setAttribute('data-theme',isLight?'dark':'light');
+  try{localStorage.setItem(KEY+'_theme',isLight?'dark':'light');}catch(e){}
+};
+try{const t=localStorage.getItem(KEY+'_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}
+let toastT;function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1800);}
+
+/* ================= 起動 ================= */
+renderHome();updateBadges();
+if(!S.onboarded)openIntro();
+// X投稿のリンク（#ev=e1）から来たときは、その公演ページを直接開く
+try{const mm=(location.hash+location.search).match(/ev=(e\d+)/);if(mm&&E(mm[1]))openEvent(mm[1]);}catch(e){}
+// PWA（GitHub Pages などで配信したときだけ。Artifact 内では登録しない）
+try{if('serviceWorker' in navigator&&/github\.io|localhost|127\.0\.0\.1/.test(location.hostname))navigator.serviceWorker.register('sw.js');}catch(e){}
+</script>

@@ -1,0 +1,825 @@
+<title>Tomoni</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<style>
+:root{
+  --bg:#F7F5FB; --bg2:#FFFFFF; --bg3:#EEEAF6;
+  --ink:#1F1B2E; --ink2:#5C5772; --ink3:#9A95AD;
+  --line:#E3DFEE;
+  --accent:#F07A5A; --accent-ink:#FFFFFF; --accent-soft:#FDE9E2;
+  --indigo:#3A3F7A;
+  --like:#2FB57F; --nope:#E4506B; --star:#4C8DF5;
+  --shadow:0 18px 40px rgba(31,27,46,.14);
+  --shadow-sm:0 4px 14px rgba(31,27,46,.08);
+  --r:22px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15131D; --bg2:#1E1B29; --bg3:#272334;
+    --ink:#EDE9F5; --ink2:#B4AEC8; --ink3:#7A748F;
+    --line:#2F2B3D;
+    --accent:#F58A6C; --accent-ink:#1A1520; --accent-soft:#3A2A2A;
+    --shadow:0 18px 40px rgba(0,0,0,.45);
+    --shadow-sm:0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15131D; --bg2:#1E1B29; --bg3:#272334;
+  --ink:#EDE9F5; --ink2:#B4AEC8; --ink3:#7A748F;
+  --line:#2F2B3D;
+  --accent:#F58A6C; --accent-ink:#1A1520; --accent-soft:#3A2A2A;
+  --shadow:0 18px 40px rgba(0,0,0,.45);
+  --shadow-sm:0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif;
+  font-size:15px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior:none;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+.num{font-family:"Outfit",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+svg{display:block}
+
+/* ---------- shell ---------- */
+#app{
+  height:100dvh; max-width:430px; margin:0 auto;
+  display:flex; flex-direction:column;
+  background:var(--bg); position:relative; overflow:hidden;
+}
+@media(min-width:700px){
+  body{background:var(--bg3)}
+  #app{height:min(880px,calc(100dvh - 32px));margin-top:16px;border-radius:36px;box-shadow:var(--shadow);border:1px solid var(--line)}
+}
+.screen{flex:1;display:none;flex-direction:column;min-height:0}
+.screen.active{display:flex}
+.top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px 10px;
+}
+.brand{font-family:"Outfit",sans-serif;font-weight:700;font-size:22px;letter-spacing:-.01em;color:var(--accent);display:flex;align-items:center;gap:8px}
+.top h1{font-size:19px;font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);background:var(--bg3);padding:6px 10px;border-radius:999px}
+.iconbtn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:var(--ink2);transition:background .2s,transform .2s}
+.iconbtn:hover{background:var(--bg3)}
+.iconbtn:active{transform:scale(.92)}
+.iconbtn:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- tab bar ---------- */
+nav.tabs{
+  display:flex;justify-content:space-around;align-items:center;
+  padding:8px 8px calc(10px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);background:var(--bg2);
+}
+nav.tabs button{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:10.5px;color:var(--ink3);padding:6px 14px;border-radius:14px;
+  position:relative;transition:color .2s,transform .2s;
+}
+nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+nav.tabs button.on{color:var(--accent)}
+nav.tabs button.on svg{transform:translateY(-2px) scale(1.08)}
+nav.tabs button .badge{
+  position:absolute;top:2px;right:8px;min-width:18px;height:18px;padding:0 5px;
+  border-radius:9px;background:var(--accent);color:var(--accent-ink);
+  font-size:11px;font-weight:600;display:grid;place-items:center;
+  animation:pop .35s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* ---------- discover ---------- */
+.deck{flex:1;position:relative;margin:4px 16px 8px;min-height:0}
+.card{
+  position:absolute;inset:0;border-radius:28px;overflow:hidden;
+  background:var(--bg2);box-shadow:var(--shadow);
+  touch-action:none;user-select:none;-webkit-user-select:none;
+  will-change:transform;transform-origin:50% 100%;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s;
+}
+.card.dragging{transition:none}
+.card.behind{transform:scale(.95) translateY(14px);opacity:.85}
+.card.behind2{transform:scale(.9) translateY(28px);opacity:.5}
+.card.fly{transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.photo{position:absolute;inset:0}
+.photo svg{width:100%;height:100%}
+.card .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,14,30,.85) 0%,rgba(20,14,30,.35) 35%,rgba(20,14,30,0) 60%)}
+.card .info{position:absolute;left:0;right:0;bottom:0;padding:22px 22px 24px;color:#fff}
+.card .name{font-size:26px;font-weight:700;display:flex;align-items:baseline;gap:8px;line-height:1.2}
+.card .name .age{font-family:"Outfit",sans-serif;font-weight:500;font-size:22px;opacity:.9}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:6px;font-size:13px;opacity:.92}
+.card .meta span{display:inline-flex;align-items:center;gap:4px}
+.card .meta svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card .bio{margin-top:10px;font-size:13.5px;line-height:1.5;opacity:.92;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.card .tags span{font-size:12px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25)}
+.card .badges{position:absolute;top:16px;left:16px;display:flex;gap:6px}
+.card .badges span{font-size:11px;font-weight:600;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.9);color:var(--indigo);display:flex;align-items:center;gap:4px}
+.card .badges span.on{background:var(--like);color:#fff}
+.card .badges span.on i{width:6px;height:6px;border-radius:50%;background:#fff;display:block;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.stamp{
+  position:absolute;top:40px;padding:8px 16px;border:4px solid;border-radius:10px;
+  font-family:"Outfit",sans-serif;font-weight:700;font-size:34px;letter-spacing:.06em;
+  opacity:0;transform:rotate(-18deg);color:var(--like);left:22px;
+}
+.stamp.nope{left:auto;right:22px;transform:rotate(18deg);color:var(--nope)}
+.stamp.star{left:50%;top:auto;bottom:140px;transform:translateX(-50%) rotate(0);color:var(--star);font-size:28px}
+.actions{display:flex;justify-content:center;align-items:center;gap:18px;padding:6px 0 14px}
+.actions button{
+  width:58px;height:58px;border-radius:50%;background:var(--bg2);display:grid;place-items:center;
+  box-shadow:var(--shadow-sm);border:1px solid var(--line);
+  transition:transform .18s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;
+}
+.actions button svg{width:26px;height:26px;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.actions button.small{width:46px;height:46px}
+.actions button.small svg{width:20px;height:20px}
+.actions button:hover{transform:scale(1.1)}
+.actions button:active{transform:scale(.9)}
+.actions .b-nope svg{stroke:var(--nope)}
+.actions .b-like svg{stroke:var(--like)}
+.actions .b-star svg{stroke:var(--star)}
+.actions .b-undo svg{stroke:var(--ink3)}
+.actions .b-like{width:66px;height:66px}
+.empty{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;color:var(--ink2);padding:30px}
+.empty svg{width:56px;height:56px;stroke:var(--ink3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.empty h3{color:var(--ink);font-size:18px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;border-radius:14px;font-weight:600;background:var(--accent);color:var(--accent-ink);
+  transition:transform .15s,filter .2s;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:var(--bg3);color:var(--ink)}
+.btn.danger{background:transparent;color:var(--nope);border:1px solid var(--line)}
+
+/* ---------- lists ---------- */
+.scroll{flex:1;overflow-y:auto;min-height:0;padding:0 16px 20px}
+.section-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:600;margin:14px 4px 8px;font-family:"Outfit",sans-serif}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{
+  border-radius:20px;overflow:hidden;position:relative;aspect-ratio:3/4;background:var(--bg2);box-shadow:var(--shadow-sm);
+  cursor:pointer;transition:transform .2s;
+}
+.tile:hover{transform:translateY(-3px)}
+.tile .photo svg{width:100%;height:100%}
+.tile .grad{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,14,30,.8),rgba(20,14,30,0) 55%)}
+.tile .t{position:absolute;left:12px;right:12px;bottom:12px;color:#fff}
+.tile .t b{font-size:16px}
+.tile .t small{display:block;font-size:12px;opacity:.85}
+.tile .heart{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:var(--accent);display:grid;place-items:center;box-shadow:var(--shadow-sm)}
+.tile .heart svg{width:16px;height:16px;fill:#fff;stroke:none}
+
+.row{
+  display:flex;align-items:center;gap:14px;padding:12px 6px;border-radius:16px;cursor:pointer;
+  transition:background .15s;
+}
+.row:hover{background:var(--bg3)}
+.avatar{width:56px;height:56px;border-radius:50%;overflow:hidden;flex:none;position:relative}
+.avatar svg{width:100%;height:100%}
+.avatar.sm{width:36px;height:36px}
+.avatar .dot{position:absolute;right:2px;bottom:2px;width:12px;height:12px;border-radius:50%;background:var(--like);border:2px solid var(--bg)}
+.row .txt{flex:1;min-width:0}
+.row .txt b{display:block;font-size:15px}
+.row .txt span{display:block;font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .txt span.unread{color:var(--ink);font-weight:500}
+.row time{font-size:11px;color:var(--ink3);font-family:"Outfit",sans-serif}
+.row .n{width:20px;height:20px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:11px;font-weight:600;display:grid;place-items:center;margin-top:4px}
+.newmatches{display:flex;gap:14px;overflow-x:auto;padding:4px 4px 8px;scrollbar-width:none}
+.newmatches::-webkit-scrollbar{display:none}
+.newmatches .nm{display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;cursor:pointer;font-size:12px;color:var(--ink2)}
+.newmatches .avatar{width:64px;height:64px;border:3px solid var(--accent);padding:2px;background:var(--bg)}
+.newmatches .avatar svg{border-radius:50%}
+.placeholder{padding:40px 20px;text-align:center;color:var(--ink2);font-size:14px}
+
+/* ---------- chat ---------- */
+#chat{position:absolute;inset:0;background:var(--bg);display:none;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:5}
+#chat.open{display:flex;transform:translateX(0)}
+.chat-top{display:flex;align-items:center;gap:10px;padding:14px 12px 10px;border-bottom:1px solid var(--line);background:var(--bg2)}
+.chat-top .who b{display:block;font-size:15px}
+.chat-top .who span{font-size:12px;color:var(--like)}
+.msgs{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:8px}
+.msgs .sys{align-self:center;font-size:12px;color:var(--ink3);background:var(--bg3);padding:6px 12px;border-radius:999px;margin:6px 0}
+.bubble{max-width:78%;padding:10px 14px;border-radius:18px;font-size:14.5px;line-height:1.5;animation:rise .25s ease-out;word-break:break-word}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bubble.me{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:6px}
+.bubble.them{align-self:flex-start;background:var(--bg2);border:1px solid var(--line);border-bottom-left-radius:6px}
+.bubble time{display:block;font-size:10px;opacity:.6;margin-top:3px;text-align:right;font-family:"Outfit",sans-serif}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:12px 16px;background:var(--bg2);border:1px solid var(--line);border-radius:18px;border-bottom-left-radius:6px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--ink3);animation:bounce 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.composer{display:flex;gap:8px;padding:10px 12px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg2)}
+.composer input{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:11px 16px;outline:none;transition:border-color .2s}
+.composer input:focus{border-color:var(--accent)}
+.composer button{width:44px;height:44px;border-radius:50%;background:var(--accent);display:grid;place-items:center;transition:transform .15s}
+.composer button:active{transform:scale(.9)}
+.composer button svg{width:20px;height:20px;stroke:var(--accent-ink);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.quick{display:flex;gap:8px;padding:0 12px 8px;overflow-x:auto;scrollbar-width:none;background:var(--bg2)}
+.quick::-webkit-scrollbar{display:none}
+.quick button{flex:none;font-size:12.5px;padding:7px 12px;border-radius:999px;background:var(--bg3);color:var(--ink2);transition:background .15s}
+.quick button:hover{background:var(--accent-soft);color:var(--ink)}
+
+/* ---------- profile ---------- */
+.me-card{display:flex;align-items:center;gap:16px;padding:8px 4px 16px}
+.me-card .avatar{width:76px;height:76px}
+.me-card h2{font-size:20px}
+.me-card p{color:var(--ink2);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:14px 12px;text-align:center}
+.stat b{display:block;font-family:"Outfit",sans-serif;font-size:26px;font-weight:600;line-height:1.1}
+.stat span{font-size:11.5px;color:var(--ink2)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-size:12.5px;color:var(--ink2);font-weight:500}
+.field input,.field textarea,.field select{
+  border:1px solid var(--line);background:var(--bg2);border-radius:14px;padding:11px 14px;outline:none;transition:border-color .2s;width:100%;
+}
+.field textarea{resize:vertical;min-height:80px}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tagpick{display:flex;flex-wrap:wrap;gap:8px}
+.tagpick button{font-size:13px;padding:7px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);color:var(--ink2);transition:all .15s}
+.tagpick button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
+.note{font-size:12.5px;color:var(--ink3);line-height:1.6;padding:12px 4px}
+.saved{position:fixed;left:50%;bottom:90px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;z-index:30}
+.saved.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- match overlay ---------- */
+#match{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:30px;text-align:center;color:#fff;
+  background:radial-gradient(120% 80% at 50% 0%,#F58A6C 0%,#C8496E 45%,#3A3F7A 100%);}
+#match.open{display:flex;animation:fadein .3s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+#match .title{font-family:"Outfit",sans-serif;font-size:44px;font-weight:700;letter-spacing:-.02em;line-height:1;animation:pop .6s cubic-bezier(.34,1.56,.64,1)}
+#match .sub{font-size:15px;opacity:.9}
+#match .pair{display:flex;align-items:center;gap:-10px;margin:10px 0}
+#match .pair .avatar{width:110px;height:110px;border:4px solid #fff;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+#match .pair .avatar:first-child{animation:slideL .6s cubic-bezier(.34,1.56,.64,1)}
+#match .pair .avatar:last-child{animation:slideR .6s cubic-bezier(.34,1.56,.64,1);margin-left:-18px}
+@keyframes slideL{from{transform:translateX(-80px);opacity:0}}
+@keyframes slideR{from{transform:translateX(80px);opacity:0}}
+#match .btn{background:#fff;color:#C8496E;min-width:220px}
+#match .btn.ghost{background:rgba(255,255,255,.15);color:#fff}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-10px;width:8px;height:14px;border-radius:2px;animation:fall 2.4s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ---------- profile detail sheet ---------- */
+#sheet{position:absolute;inset:0;z-index:15;display:none;background:rgba(20,14,30,.5);backdrop-filter:blur(2px)}
+#sheet.open{display:block}
+#sheet .panel{position:absolute;left:0;right:0;bottom:0;max-height:88%;background:var(--bg);border-radius:28px 28px 0 0;overflow-y:auto;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+#sheet .hero{height:280px;position:relative}
+#sheet .hero .photo{position:absolute;inset:0}
+#sheet .hero .photo svg{width:100%;height:100%}
+#sheet .hero .grad{position:absolute;inset:0;background:linear-gradient(to top,var(--bg),transparent 60%)}
+#sheet .body{padding:0 22px 30px}
+#sheet h2{font-size:24px;display:flex;align-items:baseline;gap:8px}
+#sheet h2 .age{font-family:"Outfit",sans-serif;font-weight:500;font-size:20px;color:var(--ink2)}
+#sheet .meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--ink2);font-size:13.5px;margin:6px 0 14px}
+#sheet .meta span{display:inline-flex;align-items:center;gap:5px}
+#sheet .meta svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#sheet p{font-size:14.5px;line-height:1.7;color:var(--ink)}
+#sheet .tags{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 20px}
+#sheet .tags span{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--bg3);color:var(--ink2)}
+#sheet .close{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.9);color:#1F1B2E;display:grid;place-items:center}
+#sheet .close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round}
+.cta-row{display:flex;gap:10px}
+.cta-row .btn{flex:1}
+
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<div id="app">
+
+  <!-- ===== Discover ===== -->
+  <section class="screen active" id="s-discover">
+    <div class="top">
+      <div class="brand"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6a5.3 5.3 0 0 1 9.3 5.4C19 16.4 12 21 12 21z"/></svg>Tomoni</div>
+      <div class="chip"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg><span id="me-area-chip">東京</span> · <span id="remain-chip" class="num">0</span>人</div>
+    </div>
+    <div class="deck" id="deck"></div>
+    <div class="actions">
+      <button class="small b-undo" id="b-undo" title="もどす"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+      <button class="b-nope" id="b-nope" title="スキップ"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="b-like" id="b-like" title="いいね"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6a5.3 5.3 0 0 1 9.3 5.4C19 16.4 12 21 12 21z"/></svg></button>
+      <button class="small b-star" id="b-star" title="スーパーいいね"><svg viewBox="0 0 24 24"><path d="M12 3l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.4 6.3 20.5l1.2-6.4L2.8 9.7l6.4-.8z"/></svg></button>
+    </div>
+  </section>
+
+  <!-- ===== Likes ===== -->
+  <section class="screen" id="s-likes">
+    <div class="top"><h1>いいね</h1><span class="chip">あなたに届いた <b class="num" id="likes-count">0</b></span></div>
+    <div class="scroll" id="likes-list"></div>
+  </section>
+
+  <!-- ===== Messages ===== -->
+  <section class="screen" id="s-messages">
+    <div class="top"><h1>メッセージ</h1></div>
+    <div class="scroll" id="msg-list"></div>
+  </section>
+
+  <!-- ===== Profile ===== -->
+  <section class="screen" id="s-profile">
+    <div class="top"><h1>マイページ</h1><button class="iconbtn" id="b-theme" title="テーマ切替"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div>
+    <div class="scroll">
+      <div class="me-card">
+        <div class="avatar" id="me-avatar"></div>
+        <div><h2 id="me-name-h">—</h2><p id="me-sub">—</p></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b class="num" id="st-likes">0</b><span>いいね送信</span></div>
+        <div class="stat"><b class="num" id="st-matches">0</b><span>マッチ</span></div>
+        <div class="stat"><b class="num" id="st-msgs">0</b><span>メッセージ</span></div>
+      </div>
+      <div class="section-label">プロフィール編集</div>
+      <div class="field-row">
+        <div class="field"><label>名前</label><input id="f-name" maxlength="12"></div>
+        <div class="field"><label>年齢</label><input id="f-age" type="number" min="18" max="99"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>エリア</label><select id="f-area"><option>東京</option><option>神奈川</option><option>千葉</option><option>埼玉</option><option>大阪</option><option>福岡</option></select></div>
+        <div class="field"><label>職業</label><input id="f-job" maxlength="16"></div>
+      </div>
+      <div class="field"><label>自己紹介</label><textarea id="f-bio" maxlength="200"></textarea></div>
+      <div class="field"><label>興味・趣味（最大5つ）</label><div class="tagpick" id="f-tags"></div></div>
+      <button class="btn" id="b-save" style="width:100%">保存する</button>
+      <div class="section-label" style="margin-top:22px">デモについて</div>
+      <div class="note">このアプリはデモ版です。表示されるユーザーはすべて架空で、写真はイラストのプレースホルダです。データはこの端末の中だけに保存され、外部には送信されません。</div>
+      <button class="btn danger" id="b-reset" style="width:100%">デモをリセットする</button>
+    </div>
+  </section>
+
+  <nav class="tabs">
+    <button data-tab="discover" class="on"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="13" height="18" rx="3"/><path d="M17 6l3 1v13l-3-1"/></svg>さがす</button>
+    <button data-tab="likes"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6a5.3 5.3 0 0 1 9.3 5.4C19 16.4 12 21 12 21z"/></svg>いいね<span class="badge" id="badge-likes" hidden></span></button>
+    <button data-tab="messages"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>メッセージ<span class="badge" id="badge-msgs" hidden></span></button>
+    <button data-tab="profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>マイページ</button>
+  </nav>
+
+  <!-- ===== Chat ===== -->
+  <div id="chat">
+    <div class="chat-top">
+      <button class="iconbtn" id="b-back"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="avatar sm" id="chat-avatar"></div>
+      <div class="who"><b id="chat-name">—</b><span id="chat-status">オンライン</span></div>
+      <div style="flex:1"></div>
+      <button class="iconbtn" id="b-chat-profile"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="quick" id="quick"></div>
+    <form class="composer" id="composer">
+      <input id="msg-input" placeholder="メッセージを入力" autocomplete="off">
+      <button type="submit" title="送信"><svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2-7z"/></svg></button>
+    </form>
+  </div>
+
+  <!-- ===== Match overlay ===== -->
+  <div id="match">
+    <div class="confetti" id="confetti"></div>
+    <div class="title">It's a Match!</div>
+    <div class="pair"><div class="avatar" id="m-me"></div><div class="avatar" id="m-them"></div></div>
+    <div class="sub" id="m-sub">—</div>
+    <button class="btn" id="b-match-chat">メッセージを送る</button>
+    <button class="btn ghost" id="b-match-close">あとで</button>
+  </div>
+
+  <!-- ===== Profile sheet ===== -->
+  <div id="sheet">
+    <div class="panel">
+      <div class="hero"><div class="photo" id="sh-photo"></div><div class="grad"></div><button class="close" id="b-sheet-close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="body">
+        <h2 id="sh-name"></h2>
+        <div class="meta" id="sh-meta"></div>
+        <p id="sh-bio"></p>
+        <div class="tags" id="sh-tags"></div>
+        <div class="cta-row" id="sh-cta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="saved" id="toast">保存しました</div>
+</div>
+
+<script>
+/* ================= データ ================= */
+const TAGS=['カフェ巡り','映画','音楽','旅行','ランニング','筋トレ','料理','読書','ゲーム','写真','キャンプ','サウナ','アート','お酒','猫','犬','ヨガ','登山','サッカー','野球','ライブ','スイーツ','ドライブ','温泉','英会話'];
+
+const R=(i)=>i; // 固定データなので乱数は使わない（表示が毎回同じになる）
+const USERS=[
+ {id:1,name:'美咲',age:27,area:'東京',dist:3,job:'Webデザイナー',hue:18,likesYou:true,online:true,verified:true,
+  bio:'休日はカフェで本を読むか、友達とサウナに行ってます。写真を撮るのも好きで最近フィルムカメラ始めました。',tags:['カフェ巡り','サウナ','写真','読書'],
+  opener:'マッチありがとうございます！プロフィールの雰囲気が素敵だなと思って、いいねしました',
+  replies:['最近行ったカフェで、抹茶ラテがすごく美味しいところがあったんです','サウナは週1で行ってます。整いますよね','フィルムカメラ、現像するまで分からないのが楽しいんですよ','今度おすすめのお店教えてください！']},
+ {id:2,name:'翔太',age:29,area:'神奈川',dist:12,job:'エンジニア',hue:210,likesYou:false,online:false,verified:true,
+  bio:'横浜在住。仕事はソフトウェアの開発。週末はロードバイクで走るか、キャンプに行ってます。',tags:['キャンプ','ランニング','ゲーム','ドライブ'],
+  opener:'はじめまして！キャンプ好きなんですね。どのあたりに行くことが多いですか？',
+  replies:['道志の森キャンプ場、川があって最高でした','ロードバイクは湘南あたりを走ることが多いです','焚き火見ながらコーヒー飲む時間が一番好きです','今度一緒にキャンプ行きましょう！']},
+ {id:3,name:'さくら',age:25,area:'東京',dist:5,job:'保育士',hue:340,likesYou:true,online:true,verified:false,
+  bio:'子どもたちと毎日元気に過ごしてます！甘いものと猫が大好き。一緒にスイーツ巡りしてくれる人募集中です。',tags:['スイーツ','猫','映画','カフェ巡り'],
+  opener:'わ、マッチしました！よろしくお願いします',
+  replies:['最近ハマってるのは自由が丘のモンブランです','実家に猫が2匹いて、帰るたびに癒されてます','映画は泣けるやつが好きです。おすすめありますか？','今週末、天気良さそうですね']},
+ {id:4,name:'健太',age:31,area:'埼玉',dist:22,job:'営業',hue:150,likesYou:true,online:false,verified:true,
+  bio:'食べることが人生の楽しみ。ラーメン・焼肉・寿司、なんでも好きです。筋トレしてるので食べても大丈夫（たぶん）。',tags:['筋トレ','お酒','野球','ドライブ'],
+  opener:'マッチありがとうございます！美味しいもの好きですか？',
+  replies:['最近は大宮のラーメン屋を制覇しようとしてます','ジムは週3で通ってます。ベンチ100kg目標です','野球観戦、一緒に行ける人探してました','今度ご飯行きましょう！']},
+ {id:5,name:'結衣',age:26,area:'東京',dist:7,job:'看護師',hue:280,likesYou:false,online:true,verified:true,
+  bio:'夜勤明けのサウナが至福。休みは温泉に行ったり、家でゆっくり映画を観たり。穏やかな人と話したいです。',tags:['温泉','サウナ','映画','料理'],
+  opener:'こんにちは！プロフィール読ませてもらいました',
+  replies:['箱根の日帰り温泉、最近見つけたところが穴場なんです','料理は最近パスタばかり作ってます','夜勤明けは何も考えたくないので映画が最高です','お互いのペースで話せたら嬉しいです']},
+ {id:6,name:'大輝',age:28,area:'千葉',dist:30,job:'公務員',hue:35,likesYou:true,online:false,verified:false,
+  bio:'千葉でのんびり暮らしてます。登山とサッカー観戦が趣味。真面目すぎると言われますが、笑うと止まらないタイプです。',tags:['登山','サッカー','読書','温泉'],
+  opener:'はじめまして。趣味が合いそうだと思っていいねしました',
+  replies:['先月は高尾山、来月は富士山に挑戦する予定です','サッカーはジェフ千葉を応援してます','読書は歴史小説が多いです','安心して話せる人だと嬉しいです']},
+ {id:7,name:'あかり',age:24,area:'東京',dist:2,job:'大学院生',hue:55,likesYou:true,online:true,verified:false,
+  bio:'アートと音楽が好き。美術館デートに付き合ってくれる人を探してます。ライブにもよく行きます。',tags:['アート','ライブ','音楽','写真'],
+  opener:'マッチ嬉しいです！美術館とか興味ありますか？',
+  replies:['今、六本木でやってる展示がすごく良かったです','ライブは月2くらいで行ってます','研究は忙しいですが、週末は自由です','一緒に展示見に行きたいです！']},
+ {id:8,name:'蓮',age:30,area:'大阪',dist:400,job:'バーテンダー',hue:0,likesYou:false,online:false,verified:true,
+  bio:'大阪でバーをやってます。お酒の話ならいくらでもできます。東京にもよく来るので、気軽に話しましょう。',tags:['お酒','音楽','料理','旅行'],
+  opener:'こんばんは。お酒はお好きですか？',
+  replies:['最近のおすすめはジンベースのカクテルです','来月、東京に出張があるんです','音楽はジャズを流してます','よかったらお店にも遊びに来てください']},
+ {id:9,name:'ひなた',age:23,area:'神奈川',dist:15,job:'アパレル',hue:320,likesYou:true,online:true,verified:true,
+  bio:'鎌倉によく行きます。海と犬とおいしいパンがあれば幸せ。休日は散歩とドライブ。',tags:['犬','ドライブ','カフェ巡り','スイーツ'],
+  opener:'マッチありがとう！犬好きですか？',
+  replies:['うちの柴犬、散歩が大好きで毎日引っ張られてます','鎌倉のパン屋さん巡りが最近の楽しみです','海沿いをドライブするのが気持ちいいですよ','今度ドライブ行きませんか？']},
+ {id:10,name:'拓海',age:27,area:'東京',dist:6,job:'カメラマン',hue:195,likesYou:false,online:true,verified:true,
+  bio:'写真を仕事にしてます。旅先で撮るのが一番好き。次はアイスランドに行きたい。',tags:['写真','旅行','キャンプ','アート'],
+  opener:'はじめまして！旅行好きなんですね',
+  replies:['去年はモロッコに行ってました','写真は人よりも風景を撮ることが多いです','アイスランドのオーロラを撮るのが夢です','よかったら撮影しますよ']},
+ {id:11,name:'莉子',age:28,area:'東京',dist:4,job:'マーケター',hue:165,likesYou:true,online:false,verified:true,
+  bio:'仕事もプライベートも全力。ヨガで整えて、週末はランニング。ポジティブな人と話したいです。',tags:['ヨガ','ランニング','英会話','旅行'],
+  opener:'マッチしましたね！よろしくお願いします',
+  replies:['朝ヨガから1日が始まります','皇居ランは月1くらい','英会話は毎日少しずつ続けてます','一緒に走れる人がいたら嬉しいです']},
+ {id:12,name:'悠人',age:26,area:'埼玉',dist:25,job:'教師',hue:100,likesYou:true,online:false,verified:false,
+  bio:'中学校で数学を教えてます。ゲームと映画が息抜き。落ち着いた人が好きです。',tags:['ゲーム','映画','読書','料理'],
+  opener:'はじめまして。映画好きなんですね',
+  replies:['最近はスプラトゥーンにハマってます','映画は週末に2本くらい観ます','生徒に負けないように色々勉強してます','料理は最近カレーに凝ってます']},
+ {id:13,name:'菜々',age:25,area:'千葉',dist:28,job:'受付',hue:25,likesYou:false,online:true,verified:true,
+  bio:'温泉と甘いものが大好き。おしゃべりが好きなので、たくさん話しましょう！',tags:['温泉','スイーツ','カフェ巡り','ライブ'],
+  opener:'こんにちは！お話しできて嬉しいです',
+  replies:['草津温泉に行きたいんです','パフェが大好きで、食べ歩きしてます','ライブは推しのバンドを追いかけてます','今度お茶しましょう！']},
+ {id:14,name:'颯',age:32,area:'東京',dist:9,job:'建築士',hue:230,likesYou:true,online:false,verified:true,
+  bio:'建築の仕事をしてます。街を歩いて建物を見るのが趣味。美術館と古い喫茶店が好き。',tags:['アート','カフェ巡り','写真','読書'],
+  opener:'マッチありがとうございます。街歩き、好きですか？',
+  replies:['谷中あたりの古い建物を見て歩くのが好きです','喫茶店はナポリタンで選んでます','最近は北欧建築の本を読んでます','一緒に散歩できたら嬉しいです']},
+ {id:15,name:'花音',age:24,area:'東京',dist:3,job:'ダンサー',hue:300,likesYou:true,online:true,verified:false,
+  bio:'ダンスを教えてます。音楽がないと生きていけない。フェスに一緒に行ける人募集！',tags:['音楽','ライブ','ヨガ','旅行'],
+  opener:'マッチ嬉しい！音楽はどんなの聴きますか？',
+  replies:['今年もフジロック行きます','レッスンは毎日、でも週末は空いてます','踊れなくても全然大丈夫ですよ','おすすめの曲教えてください']},
+ {id:16,name:'亮',age:29,area:'神奈川',dist:18,job:'医師',hue:180,likesYou:false,online:false,verified:true,
+  bio:'仕事が忙しいので、なかなか出会いがなくて。休みの日は登山かゴルフ。',tags:['登山','筋トレ','お酒','温泉'],
+  opener:'はじめまして。お互いのペースでお話しできれば',
+  replies:['先週は丹沢に登ってきました','仕事柄、返事が遅くなることがあります','温泉に入りながら星を見るのが好きです','無理のない範囲で仲良くなれたら']},
+ {id:17,name:'心美',age:27,area:'福岡',dist:900,job:'ライター',hue:15,likesYou:true,online:true,verified:true,
+  bio:'福岡在住。取材で全国を回ってます。東京にも月1で来ます。文章と猫と屋台が好き。',tags:['読書','猫','旅行','お酒'],
+  opener:'マッチありがとう！遠距離だけど、話してみたいなと思って',
+  replies:['来週、東京に取材で行きます','屋台のラーメン、一緒に食べに来てほしいです','猫の写真送りますね','文章を書くのが仕事なので、メッセージは得意です']},
+ {id:18,name:'翼',age:25,area:'東京',dist:8,job:'美容師',hue:275,likesYou:true,online:false,verified:false,
+  bio:'表参道の美容室で働いてます。休みは映画とサウナ。髪の相談も気軽にどうぞ。',tags:['サウナ','映画','音楽','ドライブ'],
+  opener:'マッチしました！よろしくお願いします',
+  replies:['サウナは水風呂が命だと思ってます','映画は韓国映画にハマってます','火曜定休なので平日も動けます','髪型の相談、いつでもどうぞ']},
+ {id:19,name:'杏奈',age:26,area:'神奈川',dist:14,job:'イラストレーター',hue:45,likesYou:false,online:true,verified:true,
+  bio:'絵を描いて生きてます。家で過ごすのが好きですが、たまに外に連れ出してくれる人がいたら。',tags:['アート','ゲーム','猫','スイーツ'],
+  opener:'はじめまして。絵とか興味ありますか？',
+  replies:['最近は水彩で風景を描いてます','ゲームはどうぶつの森を細々と','猫を飼うのが夢です','外に出るきっかけがほしいです']},
+ {id:20,name:'陽向',age:28,area:'東京',dist:5,job:'コンサル',hue:205,likesYou:true,online:true,verified:true,
+  bio:'仕事は忙しいけど、休みは全力で遊ぶタイプ。ゴルフ、旅行、ワイン。話すのが好きです。',tags:['旅行','お酒','筋トレ','英会話'],
+  opener:'マッチありがとうございます！旅行好きですか？',
+  replies:['次はポルトガルに行こうと思ってます','ワインはナチュラルワインが好きです','出張が多いですが、週末は東京にいます','今度食事行きましょう！']},
+ {id:21,name:'柚葉',age:23,area:'東京',dist:6,job:'学生',hue:130,likesYou:true,online:true,verified:false,
+  bio:'大学4年生。就活終わりました！卒業までに色んなところに行きたい。写真と旅行。',tags:['旅行','写真','カフェ巡り','映画'],
+  opener:'マッチ嬉しいです！',
+  replies:['卒業旅行はヨーロッパを考えてます','最近は下北沢のカフェを回ってます','写真はスマホですが結構こだわってます','おすすめの場所教えてください']},
+ {id:22,name:'湊',age:30,area:'大阪',dist:410,job:'料理人',hue:350,likesYou:false,online:false,verified:true,
+  bio:'大阪でイタリアンの店をやってます。食べるのも作るのも好き。食の話で盛り上がれる人。',tags:['料理','お酒','旅行','サッカー'],
+  opener:'こんばんは。料理はしますか？',
+  replies:['まかないで新作を試すのが楽しみです','イタリアに修行に行ってました','サッカーはセリエAを見てます','東京にも出店したいと思ってます']},
+ {id:23,name:'紬',age:27,area:'埼玉',dist:20,job:'薬剤師',hue:250,likesYou:true,online:false,verified:true,
+  bio:'落ち着いた休日が好き。読書、ヨガ、たまに温泉。真面目に話せる人と出会いたいです。',tags:['読書','ヨガ','温泉','料理'],
+  opener:'はじめまして。プロフィール素敵ですね',
+  replies:['最近読んだ本は「三体」です','ヨガは家でYouTube見ながら','温泉は秩父が近いのでよく行きます','ゆっくり仲良くなれたら嬉しいです']},
+ {id:24,name:'凪',age:26,area:'東京',dist:4,job:'グラフィックデザイナー',hue:80,likesYou:true,online:true,verified:true,
+  bio:'デザインの仕事。休みは展示を見に行くか、部屋でレコードを聴くか。落ち着いたお店で話しましょう。',tags:['アート','音楽','カフェ巡り','お酒'],
+  opener:'マッチありがとうございます。デザイン系ですか？',
+  replies:['最近はタイポグラフィの展示に行きました','レコードはジャズとシティポップ','好きな喫茶店が神保町にあります','今度一緒に展示行きましょう']}
+];
+
+/* ================= 状態 ================= */
+const KEY='tomoni_demo_v1';
+const defaultState=()=>({
+  me:{name:'ゆう',age:27,area:'東京',job:'会社員',bio:'休日はカフェとサウナ。おいしいものを一緒に食べに行ける人を探しています。',tags:['カフェ巡り','サウナ','映画'],hue:200},
+  swiped:{},      // id -> 'like' | 'nope' | 'star'
+  matches:[],     // [{id, at}]
+  chats:{},       // id -> [{from:'me'|'them', text, at}]
+  read:{},        // id -> true
+  seenLikes:false,
+  history:[]      // 直前のスワイプ（undo用）
+});
+let S=load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.me)return Object.assign(defaultState(),s);}catch(e){}return defaultState();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const byId=id=>USERS.find(u=>u.id===id);
+
+/* ================= アバター（SVGイラスト） ================= */
+function avatarSVG(hue,seed,name){
+  const h2=(hue+40)%360, h3=(hue+300)%360;
+  const skin=`hsl(${28+(seed%3)*4} 55% ${80-(seed%4)*7}%)`;
+  const hair=`hsl(${(hue+200)%360} 30% ${22+(seed%3)*8}%)`;
+  const cloth=`hsl(${h3} 45% 45%)`;
+  const id='g'+seed;
+  return `<svg viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-label="${name}のイラスト">
+  <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue} 70% 78%)"/><stop offset="1" stop-color="hsl(${h2} 65% 62%)"/></linearGradient></defs>
+  <rect width="300" height="400" fill="url(#${id})"/>
+  <circle cx="${60+(seed*37)%180}" cy="${60+(seed*53)%120}" r="${70+(seed%5)*10}" fill="hsl(${h2} 80% 90%)" opacity=".35"/>
+  <circle cx="${200-(seed*23)%120}" cy="${280+(seed*17)%80}" r="${50+(seed%4)*12}" fill="hsl(${hue} 80% 95%)" opacity=".3"/>
+  <path d="M40 400 C40 300 90 270 150 270 C210 270 260 300 260 400 Z" fill="${cloth}"/>
+  <rect x="128" y="205" width="44" height="60" rx="20" fill="${skin}"/>
+  <ellipse cx="150" cy="165" rx="62" ry="72" fill="${skin}"/>
+  <path d="M88 160 C85 95 130 75 150 75 C175 75 215 95 212 160 C205 130 190 120 150 120 C110 120 95 130 88 160 Z" fill="${hair}"/>
+  ${seed%2? `<path d="M88 150 C80 190 84 230 92 250 C100 220 100 190 98 160 Z M212 150 C220 190 216 230 208 250 C200 220 200 190 202 160 Z" fill="${hair}"/>`:''}
+  <circle cx="128" cy="170" r="5" fill="#2b2233"/><circle cx="172" cy="170" r="5" fill="#2b2233"/>
+  <path d="M136 200 Q150 212 164 200" stroke="#2b2233" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <circle cx="112" cy="192" r="10" fill="hsl(${hue} 80% 70%)" opacity=".45"/><circle cx="188" cy="192" r="10" fill="hsl(${hue} 80% 70%)" opacity=".45"/>
+  </svg>`;
+}
+const ICON={
+  pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>',
+  job:'<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  check:'<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 7"/></svg>',
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6a5.3 5.3 0 0 1 9.3 5.4C19 16.4 12 21 12 21z"/></svg>'
+};
+
+/* ================= タブ ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let tab='discover';
+$$('nav.tabs button').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+function showTab(t){
+  tab=t;
+  $$('.screen').forEach(s=>s.classList.toggle('active',s.id==='s-'+t));
+  $$('nav.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  if(t==='likes'){S.seenLikes=true;save();renderLikes();}
+  if(t==='messages')renderMessages();
+  if(t==='profile')renderProfile();
+  if(t==='discover')renderDeck();
+  updateBadges();
+}
+function updateBadges(){
+  const pending=USERS.filter(u=>u.likesYou&&!S.swiped[u.id]).length;
+  const bl=$('#badge-likes');bl.hidden=!(pending&&!S.seenLikes);bl.textContent=pending;
+  const unread=S.matches.filter(m=>!S.read[m.id]&&(S.chats[m.id]||[]).some(x=>x.from==='them')).length;
+  const bm=$('#badge-msgs');bm.hidden=!unread;bm.textContent=unread;
+}
+
+/* ================= さがす（カードスタック） ================= */
+const deck=$('#deck');
+function queue(){return USERS.filter(u=>!S.swiped[u.id]);}
+function renderDeck(){
+  deck.innerHTML='';
+  const q=queue();
+  $('#remain-chip').textContent=q.length;
+  $('#me-area-chip').textContent=S.me.area;
+  if(!q.length){
+    deck.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><h3>今日はここまで</h3><div>近くのユーザーを全員チェックしました。<br>明日また新しい人が表示されます。</div><button class="btn ghost" id="b-reset2">デモをリセットして最初から</button></div>`;
+    $('#b-reset2').onclick=resetDemo;return;
+  }
+  q.slice(0,3).reverse().forEach((u,i,arr)=>{
+    const pos=arr.length-1-i; // 0 = top
+    const c=document.createElement('div');
+    c.className='card'+(pos===1?' behind':pos===2?' behind2':'');
+    c.dataset.id=u.id;
+    c.innerHTML=`<div class="photo">${avatarSVG(u.hue,u.id,u.name)}</div><div class="grad"></div>
+      <div class="badges">${u.online?'<span class="on"><i></i>オンライン</span>':''}${u.verified?'<span>'+ICON.check+'本人確認済</span>':''}</div>
+      <div class="stamp like">LIKE</div><div class="stamp nope">NOPE</div><div class="stamp star">SUPER LIKE</div>
+      <div class="info">
+        <div class="name">${u.name}<span class="age">${u.age}</span></div>
+        <div class="meta"><span>${ICON.pin}${u.area} · ${u.dist}km</span><span>${ICON.job}${u.job}</span></div>
+        <div class="bio">${u.bio}</div>
+        <div class="tags">${u.tags.map(t=>`<span>${t}</span>`).join('')}</div>
+      </div>`;
+    deck.appendChild(c);
+    if(pos===0)attachDrag(c,u);
+  });
+}
+function attachDrag(card,u){
+  let sx=0,sy=0,dx=0,dy=0,down=false,moved=false;
+  const like=card.querySelector('.stamp.like'),nope=card.querySelector('.stamp.nope'),star=card.querySelector('.stamp.star');
+  card.addEventListener('pointerdown',e=>{down=true;moved=false;sx=e.clientX;sy=e.clientY;card.setPointerCapture(e.pointerId);card.classList.add('dragging');});
+  card.addEventListener('pointermove',e=>{
+    if(!down)return;dx=e.clientX-sx;dy=e.clientY-sy;
+    if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
+    card.style.transform=`translate(${dx}px,${dy}px) rotate(${dx/18}deg)`;
+    like.style.opacity=Math.min(1,Math.max(0,dx/90));
+    nope.style.opacity=Math.min(1,Math.max(0,-dx/90));
+    star.style.opacity=Math.min(1,Math.max(0,(-dy-60)/90))*(Math.abs(dx)<60?1:0);
+  });
+  const end=e=>{
+    if(!down)return;down=false;card.classList.remove('dragging');
+    if(!moved){openSheet(u,true);card.style.transform='';return;}
+    if(dx>110)swipe('like');
+    else if(dx<-110)swipe('nope');
+    else if(dy<-150&&Math.abs(dx)<60)swipe('star');
+    else{card.style.transform='';like.style.opacity=nope.style.opacity=star.style.opacity=0;}
+  };
+  card.addEventListener('pointerup',end);card.addEventListener('pointercancel',end);
+}
+function swipe(kind){
+  const q=queue();if(!q.length)return;
+  const u=q[0];const card=deck.querySelector(`.card[data-id="${u.id}"]`);
+  if(card){
+    card.classList.add('fly');
+    const x=kind==='like'?600:kind==='nope'?-600:0,y=kind==='star'?-800:80;
+    card.style.transform=`translate(${x}px,${y}px) rotate(${x/12}deg)`;card.style.opacity='0';
+    card.querySelector('.stamp.'+kind).style.opacity=1;
+  }
+  S.swiped[u.id]=kind;S.history.push(u.id);if(S.history.length>10)S.history.shift();
+  if(kind!=='nope'&&(u.likesYou||kind==='star')){
+    setTimeout(()=>createMatch(u),350);
+  }
+  save();
+  setTimeout(renderDeck,360);updateBadges();
+}
+$('#b-like').onclick=()=>swipe('like');
+$('#b-nope').onclick=()=>swipe('nope');
+$('#b-star').onclick=()=>swipe('star');
+$('#b-undo').onclick=()=>{
+  const id=S.history.pop();if(!id){toast('もどせるカードがありません');return;}
+  delete S.swiped[id];
+  S.matches=S.matches.filter(m=>m.id!==id);delete S.chats[id];delete S.read[id];
+  save();renderDeck();updateBadges();toast(byId(id).name+'さんをもどしました');
+};
+document.addEventListener('keydown',e=>{
+  if(tab!=='discover'||$('#chat').classList.contains('open')||$('#sheet').classList.contains('open'))return;
+  if(e.key==='ArrowRight')swipe('like');if(e.key==='ArrowLeft')swipe('nope');if(e.key==='ArrowUp')swipe('star');
+});
+
+/* ================= マッチ ================= */
+let matchUser=null;
+function createMatch(u){
+  if(S.matches.some(m=>m.id===u.id))return;
+  S.matches.push({id:u.id,at:Date.now()});
+  S.chats[u.id]=[];save();
+  matchUser=u;
+  $('#m-me').innerHTML=avatarSVG(S.me.hue,99,S.me.name);
+  $('#m-them').innerHTML=avatarSVG(u.hue,u.id,u.name);
+  $('#m-sub').textContent=`${u.name}さんもあなたにいいねしていました`;
+  const cf=$('#confetti');cf.innerHTML='';
+  for(let i=0;i<40;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=['#fff','#FFD166','#F58A6C','#7FDBCA'][i%4];p.style.animationDelay=(Math.random()*.8)+'s';p.style.animationDuration=(2+Math.random()*1.5)+'s';cf.appendChild(p);}
+  $('#match').classList.add('open');
+  // 相手からの最初のメッセージ（少し遅れて届く）
+  setTimeout(()=>{pushThem(u.id,u.opener);},4000+Math.random()*3000);
+  updateBadges();
+}
+$('#b-match-close').onclick=()=>$('#match').classList.remove('open');
+$('#b-match-chat').onclick=()=>{$('#match').classList.remove('open');openChat(matchUser.id);};
+
+/* ================= いいね一覧 ================= */
+function renderLikes(){
+  const list=$('#likes-list');
+  const pending=USERS.filter(u=>u.likesYou&&!S.swiped[u.id]);
+  $('#likes-count').textContent=pending.length;
+  if(!pending.length){list.innerHTML='<div class="placeholder">新しいいいねはありません。<br>「さがす」でもっと多くの人に出会えます。</div>';return;}
+  list.innerHTML=`<div class="section-label">あなたにいいねした人</div><div class="grid">`+pending.map(u=>`
+    <div class="tile" data-id="${u.id}"><div class="photo">${avatarSVG(u.hue,u.id,u.name)}</div><div class="grad"></div>
+    <div class="heart">${ICON.heart}</div>
+    <div class="t"><b>${u.name} <span class="num">${u.age}</span></b><small>${u.area} · ${u.dist}km</small></div></div>`).join('')+'</div>';
+  list.querySelectorAll('.tile').forEach(t=>t.onclick=()=>openSheet(byId(+t.dataset.id),true));
+}
+
+/* ================= メッセージ一覧 ================= */
+function fmtTime(t){const d=new Date(t);const now=new Date();
+  if(d.toDateString()===now.toDateString())return d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');
+  return (d.getMonth()+1)+'/'+d.getDate();}
+function renderMessages(){
+  const list=$('#msg-list');
+  if(!S.matches.length){list.innerHTML='<div class="placeholder">まだマッチがありません。<br>「さがす」でいいねを送ってみましょう。<br><small style="color:var(--ink3)">いいねタブの人はマッチしやすいです</small></div>';return;}
+  const fresh=S.matches.filter(m=>!(S.chats[m.id]||[]).some(x=>x.from==='me'));
+  const sorted=[...S.matches].sort((a,b)=>{const la=S.chats[a.id]?.slice(-1)[0]?.at||a.at,lb=S.chats[b.id]?.slice(-1)[0]?.at||b.at;return lb-la;});
+  let html='';
+  if(fresh.length){
+    html+=`<div class="section-label">新しいマッチ</div><div class="newmatches">`+fresh.map(m=>{const u=byId(m.id);return `<div class="nm" data-id="${u.id}"><div class="avatar">${avatarSVG(u.hue,u.id,u.name)}</div>${u.name}</div>`}).join('')+'</div>';
+  }
+  html+=`<div class="section-label">トーク</div>`+sorted.map(m=>{
+    const u=byId(m.id);const c=S.chats[m.id]||[];const last=c.slice(-1)[0];
+    const unread=!S.read[m.id]&&c.some(x=>x.from==='them');
+    const preview=last?(last.from==='me'?'あなた: ':'')+last.text:'マッチしました。メッセージを送ってみましょう';
+    return `<div class="row" data-id="${u.id}"><div class="avatar">${avatarSVG(u.hue,u.id,u.name)}${u.online?'<i class="dot"></i>':''}</div>
+      <div class="txt"><b>${u.name}</b><span class="${unread?'unread':''}">${preview}</span></div>
+      <div style="text-align:right"><time>${fmtTime(last?last.at:m.at)}</time>${unread?'<div class="n">'+c.filter(x=>x.from==='them').length+'</div>':''}</div></div>`;
+  }).join('');
+  list.innerHTML=html;
+  list.querySelectorAll('[data-id]').forEach(el=>el.onclick=()=>openChat(+el.dataset.id));
+}
+
+/* ================= チャット ================= */
+let chatId=null,typingTimer=null;
+const QUICK=['はじめまして！よろしくお願いします','プロフィール見ました。趣味が合いそうですね','今度ご飯でもどうですか？','おすすめの場所ありますか？'];
+function openChat(id){
+  chatId=id;const u=byId(id);
+  $('#chat-avatar').innerHTML=avatarSVG(u.hue,u.id,u.name);
+  $('#chat-name').textContent=u.name;
+  $('#chat-status').textContent=u.online?'オンライン':'最終ログイン 2時間前';
+  $('#chat-status').style.color=u.online?'var(--like)':'var(--ink3)';
+  $('#quick').innerHTML=QUICK.map(q=>`<button type="button">${q}</button>`).join('');
+  $('#quick').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('#msg-input').value=b.textContent;$('#msg-input').focus();});
+  S.read[id]=true;save();
+  renderChat();$('#chat').classList.add('open');updateBadges();
+}
+$('#b-back').onclick=()=>{$('#chat').classList.remove('open');chatId=null;if(tab==='messages')renderMessages();updateBadges();};
+$('#b-chat-profile').onclick=()=>openSheet(byId(chatId),false);
+function renderChat(){
+  const box=$('#msgs');const u=byId(chatId);const c=S.chats[chatId]||[];
+  const m=S.matches.find(x=>x.id===chatId);
+  box.innerHTML=`<div class="sys">${fmtTime(m.at)} に ${u.name}さんとマッチしました</div>`+c.map(x=>`<div class="bubble ${x.from}">${esc(x.text)}<time>${fmtTime(x.at)}</time></div>`).join('');
+  box.scrollTop=box.scrollHeight;
+}
+function esc(s){return s.replace(/[&<>"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));}
+$('#composer').addEventListener('submit',e=>{
+  e.preventDefault();const inp=$('#msg-input');const t=inp.value.trim();if(!t||!chatId)return;
+  (S.chats[chatId]=S.chats[chatId]||[]).push({from:'me',text:t,at:Date.now()});
+  inp.value='';save();renderChat();
+  scheduleReply(chatId);
+});
+function scheduleReply(id){
+  const u=byId(id);const c=S.chats[id];
+  const mine=c.filter(x=>x.from==='me').length;
+  clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>{
+    if(chatId===id){const t=document.createElement('div');t.className='typing';t.id='typing';t.innerHTML='<i></i><i></i><i></i>';$('#msgs').appendChild(t);$('#msgs').scrollTop=$('#msgs').scrollHeight;}
+    setTimeout(()=>{
+      $('#typing')?.remove();
+      const pool=u.replies;const text=pool[(mine-1)%pool.length];
+      pushThem(id,text);
+    },1200+Math.random()*1500);
+  },700+Math.random()*800);
+}
+function pushThem(id,text){
+  (S.chats[id]=S.chats[id]||[]).push({from:'them',text,at:Date.now()});
+  if(chatId===id){S.read[id]=true;renderChat();}else{S.read[id]=false;}
+  save();updateBadges();if(tab==='messages'&&chatId!==id)renderMessages();
+}
+
+/* ================= プロフィール詳細シート ================= */
+function openSheet(u,withActions){
+  $('#sh-photo').innerHTML=avatarSVG(u.hue,u.id,u.name);
+  $('#sh-name').innerHTML=`${u.name}<span class="age">${u.age}</span>`;
+  $('#sh-meta').innerHTML=`<span>${ICON.pin}${u.area} · ${u.dist}km</span><span>${ICON.job}${u.job}</span>${u.verified?'<span style="color:var(--like)">'+ICON.check+'本人確認済</span>':''}`;
+  $('#sh-bio').textContent=u.bio;
+  $('#sh-tags').innerHTML=u.tags.map(t=>`<span>${t}</span>`).join('');
+  const cta=$('#sh-cta');
+  if(withActions&&!S.swiped[u.id]){
+    cta.innerHTML=`<button class="btn ghost" id="sh-nope">スキップ</button><button class="btn" id="sh-like">いいねする</button>`;
+    $('#sh-like').onclick=()=>{closeSheet();S.swiped[u.id]='like';S.history.push(u.id);save();if(u.likesYou)createMatch(u);renderDeck();renderLikes();updateBadges();};
+    $('#sh-nope').onclick=()=>{closeSheet();S.swiped[u.id]='nope';S.history.push(u.id);save();renderDeck();renderLikes();updateBadges();};
+  }else if(S.matches.some(m=>m.id===u.id)){
+    cta.innerHTML=`<button class="btn" id="sh-chat">メッセージを送る</button>`;
+    $('#sh-chat').onclick=()=>{closeSheet();openChat(u.id);};
+  }else cta.innerHTML='';
+  $('#sheet').classList.add('open');
+}
+function closeSheet(){$('#sheet').classList.remove('open');}
+$('#b-sheet-close').onclick=closeSheet;
+$('#sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet();});
+
+/* ================= マイページ ================= */
+function renderProfile(){
+  const m=S.me;
+  $('#me-avatar').innerHTML=avatarSVG(m.hue,99,m.name);
+  $('#me-name-h').innerHTML=`${m.name} <span class="num" style="font-weight:500;color:var(--ink2)">${m.age}</span>`;
+  $('#me-sub').textContent=`${m.area} · ${m.job}`;
+  $('#st-likes').textContent=Object.values(S.swiped).filter(v=>v!=='nope').length;
+  $('#st-matches').textContent=S.matches.length;
+  $('#st-msgs').textContent=Object.values(S.chats).reduce((a,c)=>a+c.filter(x=>x.from==='me').length,0);
+  $('#f-name').value=m.name;$('#f-age').value=m.age;$('#f-area').value=m.area;$('#f-job').value=m.job;$('#f-bio').value=m.bio;
+  const tp=$('#f-tags');tp.innerHTML=TAGS.map(t=>`<button type="button" class="${m.tags.includes(t)?'on':''}">${t}</button>`).join('');
+  tp.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const on=b.classList.contains('on');
+    if(!on&&tp.querySelectorAll('.on').length>=5){toast('選べるのは5つまでです');return;}
+    b.classList.toggle('on');
+  });
+}
+$('#b-save').onclick=()=>{
+  S.me.name=$('#f-name').value.trim()||S.me.name;S.me.age=+$('#f-age').value||S.me.age;
+  S.me.area=$('#f-area').value;S.me.job=$('#f-job').value.trim();S.me.bio=$('#f-bio').value.trim();
+  S.me.tags=[...$('#f-tags').querySelectorAll('.on')].map(b=>b.textContent);
+  save();renderProfile();toast('保存しました');
+};
+$('#b-reset').onclick=()=>{if(confirm('スワイプ・マッチ・メッセージをすべて消して最初からにしますか？'))resetDemo();};
+function resetDemo(){const me=S.me;S=defaultState();S.me=me;save();showTab('discover');toast('リセットしました');}
+$('#b-theme').onclick=()=>{
+  const r=document.documentElement;const cur=r.getAttribute('data-theme');
+  const sysDark=matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark=cur==='dark'||(!cur&&sysDark);
+  r.setAttribute('data-theme',isDark?'light':'dark');
+  try{localStorage.setItem(KEY+'_theme',isDark?'light':'dark');}catch(e){}
+};
+try{const t=localStorage.getItem(KEY+'_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}
+
+let toastT;function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),1800);}
+
+/* ================= 起動 ================= */
+renderDeck();updateBadges();
+</script>
