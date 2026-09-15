@@ -11,6 +11,13 @@
 - Claude Artifact（v7・確認用）: https://claude.ai/code/artifact/06138a14-6479-4fa2-9568-800ad69f0721
 - 旧URL（v6まで。別アカウントで公開したため更新できず、v7から上記に移行）: https://claude.ai/code/artifact/7119d4c7-9163-462a-aed3-a470ee5605af
 
+## 開発ドキュメント
+
+開発の記録は `docs/` で管理している。命名規則・連番のルールは [docs/README.md](docs/README.md)。
+
+- 現状の仕様と構成（最初の1本）: [docs/20260915_DOC_0001_ALL_現状の仕様と構成.md](docs/20260915_DOC_0001_ALL_現状の仕様と構成.md)
+- 機能追加・バグ修正・改善をしたら、1件ごとに文書を足して `bash docs/manager/generate_docs_json.sh` を実行する（一覧: `docs/manager/docs.json`）
+
 ## コンセプト（Twitterの連番募集に勝つための差別化）
 - スワイプで人を選ぶのではなく、**公演を選んでから、その公演に行く人を探す**
 - **18項目の条件設定**（性別・年代・未成年除外・本人確認・FC・参戦回数・連番経験・初心者・推し一致・相手のチケット・受け渡し方法・物販・声出し・終演後・遠征・ホテル・車）
